@@ -4,8 +4,18 @@
   "icons": {
     "32": "icon/shield.png"
   },
-  "web_accessible_resources": [
+  "{{firefox}}.web_accessible_resources": [
     "icon/shield-white.png"
+  ],
+  "{{chrome}}.web_accessible_resources": [
+    {
+      "resources": [
+        "icon/shield-white.png"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
   ],
   "{{chrome}}.action": {
     "default_popup": "src/popup.html"

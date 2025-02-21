@@ -3,10 +3,12 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "license": "MIT",
   "scripts": {
     "compile": "tsc --noEmit",
     "dev": "vite",
-    "build": "vite build",
+    "build:firefox": "TARGET=firefox vite build",
+    "build:chrome": "TARGET=chrome vite build",
     "test": "jest --coverage",
     "test:watch": "jest --watch"
   },
