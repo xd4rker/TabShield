@@ -1,6 +1,11 @@
 {
   "{{chrome}}.manifest_version": 3,
   "{{firefox}}.manifest_version": 2,
+  "{{firefox}}.applications": {
+    "gecko": {
+      "id": "X@Y"
+    }
+  },
   "icons": {
     "32": "icon/shield.png"
   },
@@ -42,10 +47,5 @@
   "permissions": [
     "storage",
     "tabs"
-  ],
-  "{{firefox}}.applications": {
-    "gecko": {
-      "id": "X@Y"
-    }
-  }
+  ]
 }
