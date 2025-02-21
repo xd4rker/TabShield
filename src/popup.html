@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" href="popup.css">
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script type="module" src="./popup.ts"></script>
+  <title>Read-Only Mode</title>
+</head>
+
+<body>
+  <header>
+    <div id="heading"><img src="/icon/shield.png" width="20" height="20">&nbsp;TabShield &nbsp;<span
+        id="extension-version"></span></div>
+  </header>
+
+  <div id="special-page-container">
+    <h2>This page is not supported</h2>
+    <p>TabShield isn't available on special pages like this. Please visit a different website.</p>
+  </div>
+
+  <div id="disabled-container">
+    <button class="btn" id="enable-btn">▶️ Enable</button>
+  </div>
+
+  <div id="enabled-container">
+    <button class="btn" id="disable-btn">⏸️ Disable</button>
+
+    <div id="features" class="checkbox-container">
+      <label class="checkbox-label">
+        <input type="checkbox" name="feature" value="display-label" id="display-label-checkbox">
+        <span>Show Custom Label</span>
+      </label>
+
+      <div id="custom-label">
+        <input type="text" placeholder="Enter Custom Label" id="label-input">
+      </div>
+
+      <div id="color-picker">
+        <div class="color-option" style="background-color: #dd2d23;" data-color="#dd2d23"></div>
+        <div class="color-option" style="background-color: #efa500;" data-color="#efa500"></div>
+        <div class="color-option" style="background-color: #666f75;" data-color="#666f75"></div>
+        <div class="color-option" style="background-color: #3d70b2;" data-color="#3d70b2"></div>
+        <div class="color-option" style="background-color: #f40058;" data-color="#f40058"></div>
+        <div class="color-option" style="background-color: #198d41;" data-color="#198d41"></div>
+      </div>
+
+      <label class="checkbox-label">
+        <input type="checkbox" name="feature" value="confirm-forms" id="enable-confirm-checkbox">
+        <span>Confirm Before Submitting Forms</span>
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" name="feature" value="disable-inputs" id="disable-inputs-checkbox">
+        <span>Disable All Form Inputs</span>
+      </label>
+    </div>
+  </div>
+</body>
+
+</html>
