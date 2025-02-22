@@ -198,7 +198,6 @@ export class ContentScript {
     private disableForms(): void {
         document.querySelectorAll<HTMLFormElement>("form").forEach((form) => {
             form.addEventListener("submit", (event: Event) => event.preventDefault());
-            console.warn("🛡️ TabShield is enabled", form);
         });
     }
 
