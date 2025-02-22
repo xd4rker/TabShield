@@ -16,21 +16,27 @@ if (!targetBrowser) {
 
 const distPath = path.resolve(__dirname, "../dist");
 const packageJson = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../package.json"), "utf-8"));
+const zipDir = path.resolve(__dirname, "../dist-archives");
 const zipFileName = `${targetBrowser}-extension-v${packageJson.version}.zip`;
-const zipFilePath = path.resolve(__dirname, `../${zipFileName}`);
+const zipFilePath = path.resolve(zipDir, zipFileName);
+
+// Ensure the output directory exists
+if (!fs.existsSync(zipDir)) {
+    fs.mkdirSync(zipDir, { recursive: true });
+}
 
 if (!fs.existsSync(distPath)) {
     console.error("❌ dist folder not found. Run `npm run build` first.");
     process.exit(1);
 }
 
-console.log(`📦 Creating ${zipFileName}...`);
+console.log(`📦 Creating ${zipFileName} in ${zipDir}...`);
 
 const output = fs.createWriteStream(zipFilePath);
 const archive = archiver("zip", { zlib: { level: 9 } });
 
 output.on("close", () => {
-    console.log(`✅ Extension packed as ${zipFileName} (${archive.pointer()} bytes)`);
+    console.log(`✅ Extension packed as ${zipFilePath} (${archive.pointer()} bytes)`);
 });
 
 archive.on("error", (err) => {
