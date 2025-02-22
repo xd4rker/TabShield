@@ -1,6 +1,6 @@
-import { ConfigService } from "../configService";
+import { ConfigService } from "./configService";
 import { FakeStorage } from "./fakeStorage";
-import { DomainConfig } from "../types";
+import { DomainConfig } from "./types";
 
 describe("ConfigService", () => {
     let configService: ConfigService;

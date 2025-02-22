@@ -2,7 +2,7 @@ import browser from "webextension-polyfill";
 import { ConfigService } from "./configService";
 import { Storage } from "./storage";
 import { DomainConfig } from "./types";
-import { extractHostname, isSpecialUrl } from "./utils/urlUtils";
+import { extractHostname, isSpecialUrl } from "./urlUtil";
 
 export class Popup {
     private configService = new ConfigService(new Storage());

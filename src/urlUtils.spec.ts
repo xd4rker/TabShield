@@ -1,4 +1,4 @@
-import { extractHostname, isSpecialUrl } from "../utils/urlUtils";
+import { extractHostname, isSpecialUrl } from "./urlUtil";
 
 describe("isSpecialUrl", () => {
     test("should return true for browser-specific URLs", () => {

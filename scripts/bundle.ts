@@ -7,7 +7,6 @@ import archiver from "archiver";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Get the target browser from the command-line argument
 const targetBrowser = process.argv[2]; // "firefox" or "chrome"
 if (!targetBrowser) {
     console.error("❌ No browser target specified! Use: `npm run zip:firefox` or `npm run zip:chrome`");
@@ -20,7 +19,6 @@ const zipDir = path.resolve(__dirname, "../dist-archives");
 const zipFileName = `${targetBrowser}-extension-v${packageJson.version}.zip`;
 const zipFilePath = path.resolve(zipDir, zipFileName);
 
-// Ensure the output directory exists
 if (!fs.existsSync(zipDir)) {
     fs.mkdirSync(zipDir, { recursive: true });
 }

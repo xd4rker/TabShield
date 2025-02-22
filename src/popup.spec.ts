@@ -2,11 +2,11 @@
 
 import fs from "fs";
 import path from "path";
-import { ConfigService } from "../configService";
-import { Popup } from "../popup";
 import browser from "webextension-polyfill";
+import { Popup } from "./popup";
+import { ConfigService } from "./configService";
 import { FakeStorage } from "./fakeStorage";
-import { isSpecialUrl } from "../utils/urlUtils";
+import { isSpecialUrl } from "./urlUtil";
 
 function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -26,8 +26,8 @@ describe("Popup", () => {
     let popup: Popup;
     let configService: ConfigService;
 
-    const htmlContent = fs.readFileSync(path.resolve(__dirname, "../popup.html"), "utf8");
-    const cssContent = fs.readFileSync(path.resolve(__dirname, "../popup.css"), "utf8");
+    const htmlContent = fs.readFileSync(path.resolve(__dirname, "popup.html"), "utf8");
+    const cssContent = fs.readFileSync(path.resolve(__dirname, "popup.css"), "utf8");
 
     beforeEach(() => {
         document.body.innerHTML = htmlContent;
