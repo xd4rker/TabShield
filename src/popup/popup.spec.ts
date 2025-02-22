@@ -4,9 +4,9 @@ import fs from "fs";
 import path from "path";
 import browser from "webextension-polyfill";
 import { Popup } from "./popup";
-import { ConfigService } from "./configService";
-import { FakeStorage } from "./fakeStorage";
-import { isSpecialUrl } from "./urlUtil";
+import { ConfigService } from "../common/configService";
+import { FakeStorage } from "../common/fakeStorage";
+import { isSpecialUrl } from "../common/urlUtil";
 
 function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));

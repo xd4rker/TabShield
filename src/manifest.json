@@ -23,10 +23,10 @@
     }
   ],
   "{{chrome}}.action": {
-    "default_popup": "src/popup.html"
+    "default_popup": "src/popup/popup.html"
   },
   "{{firefox}}.browser_action": {
-    "default_popup": "src/popup.html"
+    "default_popup": "src/popup/popup.html"
   },
   "content_scripts": [
     {
@@ -34,7 +34,7 @@
         "<all_urls>"
       ],
       "js": [
-        "src/content.ts"
+        "src/content-script/content.ts"
       ]
     }
   ],

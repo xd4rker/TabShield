@@ -1,6 +1,6 @@
 import browser from "webextension-polyfill";
-import { ConfigService } from "./configService";
-import { Storage } from "./storage";
+import { ConfigService } from "../common/configService";
+import { Storage } from "../common/storage";
 
 export class ContentScript {
     private configService = new ConfigService(new Storage());
