@@ -9,6 +9,7 @@
     "dev": "vite",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
+    "build": "vite build",
     "build:firefox": "TARGET=firefox vite build",
     "build:chrome": "TARGET=chrome vite build",
     "bundle:firefox": "npm run build:firefox && tsx scripts/bundle.ts firefox",
