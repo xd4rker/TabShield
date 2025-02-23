@@ -64,9 +64,7 @@ export class ContentScript {
         const label = document.createElement("div");
         label.innerHTML = `
       <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-        <img src="${browser.runtime.getURL(
-            "/icon/shield-white.png"
-        )}" width="20" height="20" style="flex-shrink: 0;">
+        <img src="${browser.runtime.getURL("/icon/icon-white.png")}" width="20" height="20" style="flex-shrink: 0;">
         <span>${labelText}</span>
       </div>
     `;
