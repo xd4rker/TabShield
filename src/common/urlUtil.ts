@@ -1,5 +1,5 @@
 export function isSpecialUrl(url: string): boolean {
-    return /^(about:|chrome:\/\/|edge:\/\/|opera:\/\/|safari-resource:\/\/)/.test(url);
+    return /^(about:|chrome:\/\/|edge:\/\/|opera:\/\/|safari-resource:\/\/|moz-extension:\/\/)/.test(url);
 }
 
 export function extractHostname(url: string): string | null {

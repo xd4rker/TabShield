@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="./options.css">
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script type="module" src="./options.ts"></script>
+    <title>TabShield Options</title>
+</head>
+
+<body>
+    <header>
+        <div id="heading">
+            <img src="/icon/128.png" width="20" height="20">&nbsp;TabShield Options &nbsp;<span
+                id="extension-version"></span>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="websites-container">
+            <h2>Enabled Websites</h2>
+            <div id="websites-list"></div>
+        </div>
+
+        <div class="import-export-container">
+            <h2>Configuration Import/Export</h2>
+            <div class="button-group">
+                <button class="btn" id="export-btn">Export Configuration</button>
+                <button class="btn" id="import-btn">Import Configuration</button>
+                <input type="file" id="import-file" accept=".json" style="display: none;">
+            </div>
+            <div id="import-status" class="status-message"></div>
+        </div>
+    </div>
+
+    <template id="website-template">
+        <div class="website-item">
+            <div class="website-header">
+                <span class="website-domain"></span>
+                <div class="website-actions">
+                    <button class="toggle-btn">
+                        <img src="/icon/down.png" width="12" height="12" alt="Toggle">
+                    </button>
+                    <button class="delete-btn">
+                        <img src="/icon/delete.png" width="12" height="12" alt="Delete">
+                    </button>
+                </div>
+            </div>
+            <div class="website-config" style="display: none;">
+                <div class="checkbox-container">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="displayLabel" class="feature-checkbox">
+                        <span>Show Custom Label</span>
+                    </label>
+
+                    <div class="custom-label">
+                        <input type="text" placeholder="Enter Custom Label" class="label-input">
+                    </div>
+
+                    <div class="color-picker">
+                        <div class="color-option" style="background-color: #dd2d23;" data-color="#dd2d23"></div>
+                        <div class="color-option" style="background-color: #efa500;" data-color="#efa500"></div>
+                        <div class="color-option" style="background-color: #666f75;" data-color="#666f75"></div>
+                        <div class="color-option" style="background-color: #3d70b2;" data-color="#3d70b2"></div>
+                        <div class="color-option" style="background-color: #f40058;" data-color="#f40058"></div>
+                        <div class="color-option" style="background-color: #198d41;" data-color="#198d41"></div>
+                    </div>
+
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="confirmForms" class="feature-checkbox">
+                        <span>Confirm Before Submitting Forms</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="disableInputs" class="feature-checkbox">
+                        <span>Disable All Form Inputs</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </template>
+</body>
+
+</html>

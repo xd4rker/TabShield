@@ -15,6 +15,7 @@ export class Popup {
     private labelInput: HTMLInputElement;
     private colorPicker: HTMLElement;
     private colorOptions: NodeListOf<Element>;
+    private optionsButton: HTMLElement;
 
     constructor() {
         this.enableButton = this.getElement("enable-btn");
@@ -26,6 +27,7 @@ export class Popup {
         this.labelInput = this.getElement("label-input");
         this.colorPicker = this.getElement("color-picker");
         this.colorOptions = document.querySelectorAll(".color-option");
+        this.optionsButton = this.getElement("options-btn");
     }
 
     async init() {
@@ -43,6 +45,10 @@ export class Popup {
         const currentConfig = await this.configService.getDomainConfig(hostname);
         this.toggleUI(Boolean(currentConfig));
         this.setupEventListeners(hostname, currentConfig);
+
+        this.optionsButton.addEventListener("click", () => {
+            browser.tabs.create({ url: "/src/options/options.html" });
+        });
     }
 
     private setVersion(): void {
