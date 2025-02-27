@@ -32,6 +32,7 @@ export class Popup {
 
     async init() {
         this.setVersion();
+        this.initMenu();
 
         const url = await this.getCurrentUrl();
         if (!url || isSpecialUrl(url)) {
@@ -45,15 +46,18 @@ export class Popup {
         const currentConfig = await this.configService.getDomainConfig(hostname);
         this.toggleUI(Boolean(currentConfig));
         this.setupEventListeners(hostname, currentConfig);
-
-        this.optionsButton.addEventListener("click", () => {
-            browser.tabs.create({ url: "/src/options/options.html" });
-        });
     }
 
     private setVersion(): void {
         const versionElement = this.getElement("extension-version");
         versionElement.textContent = 'v' + browser.runtime.getManifest().version;
+    }
+
+    private initMenu() {
+        this.optionsButton.addEventListener("click", () => {
+            browser.tabs.create({ url: "/src/options/options.html" });
+            window.close();
+        });
     }
 
     private setupEventListeners(hostname: string, config: DomainConfig | null) {
