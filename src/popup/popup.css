@@ -106,10 +106,12 @@ p {
 }
 
 #options-btn {
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
     position: absolute;
     right: 0;
-    top: 50%;
-    transform: translateY(-50%);
     background: none;
     border: none;
     cursor: pointer;
