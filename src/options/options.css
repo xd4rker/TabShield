@@ -37,7 +37,9 @@ h2 {
 }
 
 .websites-container,
-.import-export-container {
+.import-export-container,
+.about-container {
+    border: 1px solid #ddd;
     background-color: #fafafa;
     border-radius: 8px;
     padding: 16px;
