@@ -288,3 +288,26 @@ a {
 a:hover {
     text-decoration: underline;
 }
+
+.about-content p {
+    font-size: 14px;
+    color: #444;
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+.info-links {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.info-links a {
+    text-decoration: none;
+    display: inline-block;
+}
+
+.info-links a:hover {
+    text-decoration: underline;
+}

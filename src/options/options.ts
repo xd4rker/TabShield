@@ -30,7 +30,9 @@ export class Settings {
 
     private setVersion(): void {
         const versionElement = this.getElement("extension-version");
+        const versionElement2 = this.getElement("extension-version-2");
         versionElement.textContent = 'v' + browser.runtime.getManifest().version;
+        versionElement2.textContent = 'v' + browser.runtime.getManifest().version;
     }
 
     private async loadWebsites(): Promise<void> {
