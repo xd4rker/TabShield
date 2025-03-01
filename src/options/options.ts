@@ -222,7 +222,7 @@ export class Settings {
             document.body.removeChild(downloadLink);
             URL.revokeObjectURL(url);
 
-            this.showStatusMessage('Configuration exported successfully!', 'success');
+            this.showStatusMessage('Configuration exported successfully.', 'success');
         } catch (error) {
             console.error('Export failed:', error);
             this.showStatusMessage('Failed to export configuration.', 'error');
@@ -263,7 +263,7 @@ export class Settings {
             await this.configService.saveDomainsConfig(this.domains);
             await this.loadWebsites();
 
-            this.showStatusMessage('Configuration imported successfully!', 'success');
+            this.showStatusMessage('Configuration imported successfully.', 'success');
         } catch (error) {
             console.error('Import failed:', error);
             this.showStatusMessage(`Import failed: ${(error as Error).message}`, 'error');
@@ -321,13 +321,6 @@ export class Settings {
         const element = document.getElementById(id) as T | null;
         if (!element) throw new Error(`Element with ID '${id}' not found`);
         return element;
-    }
-}
-
-// Add to ConfigService.ts
-declare module "../common/configService" {
-    interface ConfigService {
-        saveDomainsConfig(domains: Record<string, DomainConfig>): Promise<void>;
     }
 }
 

@@ -42,6 +42,7 @@
   "{{firefox}}.options_ui": {
     "page": "src/options/options.html"
   },
+  "{{chrome}}.options_page": "src/options/options.html",
   "content_scripts": [
     {
       "matches": [
