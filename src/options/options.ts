@@ -37,11 +37,8 @@ export class Settings {
 
     private async loadWebsites(): Promise<void> {
         this.domains = await this.configService.loadDomainsConfig();
-
-        // Sort domains alphabetically
         const sortedDomains = Object.keys(this.domains).sort();
 
-        // Clear existing list
         this.websitesList.innerHTML = '';
 
         if (sortedDomains.length === 0) {
@@ -53,22 +50,18 @@ export class Settings {
             return;
         }
 
-        // Create entries for each domain
         sortedDomains.forEach(domain => {
             this.createWebsiteElement(domain, this.domains[domain]);
         });
     }
 
     private createWebsiteElement(domain: string, config: DomainConfig): void {
-        // Clone template
         const websiteItem = this.websiteTemplate.content.cloneNode(true) as DocumentFragment;
         const container = websiteItem.querySelector('.website-item') as HTMLElement;
 
-        // Set domain name
         const domainElement = container.querySelector('.website-domain') as HTMLElement;
         domainElement.textContent = domain;
 
-        // Set up toggle functionality
         const toggleButton = container.querySelector('.toggle-btn') as HTMLElement;
         const configSection = container.querySelector('.website-config') as HTMLElement;
         const toggleImage = toggleButton.querySelector('img') as HTMLImageElement;
@@ -80,7 +73,6 @@ export class Settings {
             toggleImage.src = isExpanded ? '/icon/down.png' : '/icon/up.png';
         });
 
-        // Set up header click to expand/collapse
         const header = container.querySelector('.website-header') as HTMLElement;
         header.addEventListener('click', (e) => {
             if (!(e.target as HTMLElement).closest('.delete-btn')) {
@@ -90,7 +82,6 @@ export class Settings {
             }
         });
 
-        // Set up delete functionality
         const deleteButton = container.querySelector('.delete-btn') as HTMLElement;
         deleteButton.addEventListener('click', async (e) => {
             e.stopPropagation();
@@ -100,16 +91,12 @@ export class Settings {
             }
         });
 
-        // Set up feature checkboxes
         this.setupCheckboxes(container, domain, config);
 
-        // Set up label input
         this.setupLabelInput(container, domain, config);
 
-        // Set up color picker
         this.setupColorPicker(container, domain, config);
 
-        // Add to DOM
         this.websitesList.appendChild(container);
     }
 
@@ -120,21 +107,17 @@ export class Settings {
             const featureName = checkbox.getAttribute('name') as keyof DomainConfig;
             if (!featureName) return;
 
-            // Set initial state
             checkbox.checked = Boolean(config[featureName]);
 
-            // Add change listener
             checkbox.addEventListener('change', async () => {
                 const update = { [featureName]: checkbox.checked } as Partial<DomainConfig>;
                 await this.configService.updateDomainConfig(domain, update);
 
-                // Toggle display of label and color picker
                 if (featureName === 'displayLabel') {
                     this.toggleLabelVisibility(container, checkbox.checked);
                 }
             });
 
-            // Initialize visibility of label and color picker
             if (featureName === 'displayLabel') {
                 this.toggleLabelVisibility(container, checkbox.checked);
             }
@@ -185,12 +168,10 @@ export class Settings {
     }
 
     private setupEventListeners(): void {
-        // Export configuration
         this.exportButton.addEventListener('click', () => {
             this.exportConfiguration();
         });
 
-        // Import configuration
         this.importButton.addEventListener('click', () => {
             this.importFileInput.click();
         });
@@ -205,10 +186,8 @@ export class Settings {
 
     private exportConfiguration(): void {
         try {
-            // Create formatted JSON
             const jsonConfig = JSON.stringify(this.domains, null, 2);
 
-            // Create blob and download link
             const blob = new Blob([jsonConfig], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
 
@@ -218,7 +197,6 @@ export class Settings {
             document.body.appendChild(downloadLink);
             downloadLink.click();
 
-            // Clean up
             document.body.removeChild(downloadLink);
             URL.revokeObjectURL(url);
 
@@ -234,32 +212,26 @@ export class Settings {
             const fileContent = await this.readFileAsText(file);
             const importedConfig = JSON.parse(fileContent);
 
-            // Validate config structure
             if (!this.validateConfig(importedConfig)) {
                 throw new Error('Invalid configuration file format');
             }
 
-            // Handle conflicts
             if (Object.keys(this.domains).length > 0) {
                 const mergeConfirmed = confirm('Existing configuration detected. Do you want to merge with your current settings? Click "OK" to merge or "Cancel" to replace all settings.');
 
                 if (mergeConfirmed) {
-                    // Merge configurations (existing settings take precedence for conflicts)
                     Object.keys(importedConfig).forEach(domain => {
                         if (!this.domains[domain]) {
                             this.domains[domain] = importedConfig[domain];
                         }
                     });
                 } else {
-                    // Replace all settings
                     this.domains = importedConfig;
                 }
             } else {
-                // No existing config, just use imported
                 this.domains = importedConfig;
             }
 
-            // Save and reload
             await this.configService.saveDomainsConfig(this.domains);
             await this.loadWebsites();
 
@@ -269,7 +241,6 @@ export class Settings {
             this.showStatusMessage(`Import failed: ${(error as Error).message}`, 'error');
         }
 
-        // Reset input
         this.importFileInput.value = '';
     }
 
@@ -285,12 +256,10 @@ export class Settings {
     private validateConfig(config: any): boolean {
         if (!config || typeof config !== 'object') return false;
 
-        // Check structure of each domain config
         for (const domain in config) {
             const domainConfig = config[domain];
             if (!domainConfig || typeof domainConfig !== 'object') return false;
 
-            // Check required properties
             if (typeof domainConfig.displayLabel !== 'boolean' ||
                 typeof domainConfig.confirmForms !== 'boolean' ||
                 typeof domainConfig.disableInputs !== 'boolean' ||
@@ -298,7 +267,6 @@ export class Settings {
                 return false;
             }
 
-            // Optional label property
             if (domainConfig.label !== undefined && typeof domainConfig.label !== 'string') {
                 return false;
             }
@@ -311,7 +279,6 @@ export class Settings {
         this.importStatusMessage.textContent = message;
         this.importStatusMessage.className = `status-message ${type}`;
 
-        // Auto-hide after 5 seconds
         setTimeout(() => {
             this.importStatusMessage.style.display = 'none';
         }, 5000);
