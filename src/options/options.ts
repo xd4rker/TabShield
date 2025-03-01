@@ -293,7 +293,6 @@ export class Settings {
 
 if (typeof window !== "undefined") {
     document.addEventListener("DOMContentLoaded", () => {
-        const settings = new Settings();
-        settings.init();
+        new Settings().init();
     });
 }
