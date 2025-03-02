@@ -1,26 +1,28 @@
-import browser from "webextension-polyfill";
 import { ConfigService } from "../common/configService";
 import { Storage } from "../common/storage";
 import { DomainConfig } from "../common/types";
+import { DomUtils } from "../common/utils/domUtils";
+import { BrowserUtils } from "../common/utils/browserUtils";
 
-export class Settings {
+interface ImportResult {
+    success: boolean;
+    message: string;
+}
+
+export class Options {
     private configService = new ConfigService(new Storage());
-    private websitesList: HTMLElement;
-    private websiteTemplate: HTMLTemplateElement;
-    private exportButton: HTMLElement;
-    private importButton: HTMLElement;
-    private importFileInput: HTMLInputElement;
-    private importStatusMessage: HTMLElement;
     private domains: Record<string, DomainConfig> = {};
 
-    constructor() {
-        this.websitesList = this.getElement("websites-list");
-        this.websiteTemplate = this.getElement("website-template");
-        this.exportButton = this.getElement("export-btn");
-        this.importButton = this.getElement("import-btn");
-        this.importFileInput = this.getElement("import-file");
-        this.importStatusMessage = this.getElement("import-status");
-    }
+    private readonly elements = {
+        websitesList: DomUtils.getElement<HTMLElement>("websites-list"),
+        websiteTemplate: DomUtils.getElement<HTMLTemplateElement>("website-template"),
+        exportButton: DomUtils.getElement<HTMLElement>("export-btn"),
+        importButton: DomUtils.getElement<HTMLElement>("import-btn"),
+        importFileInput: DomUtils.getElement<HTMLInputElement>("import-file"),
+        importStatusMessage: DomUtils.getElement<HTMLElement>("import-status"),
+        versionElement: DomUtils.getElement<HTMLElement>("extension-version"),
+        versionElement2: DomUtils.getElement<HTMLElement>("extension-version-2")
+    };
 
     async init(): Promise<void> {
         this.setVersion();
@@ -29,24 +31,20 @@ export class Settings {
     }
 
     private setVersion(): void {
-        const versionElement = this.getElement("extension-version");
-        const versionElement2 = this.getElement("extension-version-2");
-        versionElement.textContent = 'v' + browser.runtime.getManifest().version;
-        versionElement2.textContent = 'v' + browser.runtime.getManifest().version;
+        const version = BrowserUtils.getExtensionVersion();
+        this.elements.versionElement.textContent = 'v' + version;
+        this.elements.versionElement2.textContent = 'v' + version;
     }
 
     private async loadWebsites(): Promise<void> {
         this.domains = await this.configService.loadDomainsConfig();
         const sortedDomains = Object.keys(this.domains).sort();
+        const { websitesList } = this.elements;
 
-        this.websitesList.innerHTML = '';
+        websitesList.innerHTML = '';
 
         if (sortedDomains.length === 0) {
-            const emptyMessage = document.createElement('p');
-            emptyMessage.textContent = 'No websites are currently enabled.';
-            emptyMessage.style.textAlign = 'center';
-            emptyMessage.style.color = '#666';
-            this.websitesList.appendChild(emptyMessage);
+            websitesList.appendChild(this.createEmptyMessage());
             return;
         }
 
@@ -55,49 +53,75 @@ export class Settings {
         });
     }
 
+    private createEmptyMessage(): HTMLElement {
+        const emptyMessage = document.createElement('p');
+        emptyMessage.textContent = 'No websites are currently enabled.';
+        emptyMessage.style.textAlign = 'center';
+        emptyMessage.style.color = '#666';
+        return emptyMessage;
+    }
+
     private createWebsiteElement(domain: string, config: DomainConfig): void {
-        const websiteItem = this.websiteTemplate.content.cloneNode(true) as DocumentFragment;
+        const websiteItem = this.elements.websiteTemplate.content.cloneNode(true) as DocumentFragment;
         const container = websiteItem.querySelector('.website-item') as HTMLElement;
 
+        this.setupWebsiteHeader(container, domain);
+        this.setupWebsiteToggle(container);
+        this.setupDeleteButton(container, domain);
+        this.setupCheckboxes(container, domain, config);
+        this.setupLabelInput(container, domain, config);
+        this.setupColorPicker(container, domain, config);
+
+        this.elements.websitesList.appendChild(container);
+    }
+
+    private setupWebsiteHeader(container: HTMLElement, domain: string): void {
         const domainElement = container.querySelector('.website-domain') as HTMLElement;
         domainElement.textContent = domain;
-
-        const toggleButton = container.querySelector('.toggle-btn') as HTMLElement;
-        const configSection = container.querySelector('.website-config') as HTMLElement;
-        const toggleImage = toggleButton.querySelector('img') as HTMLImageElement;
-
-        toggleButton.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const isExpanded = configSection.style.display !== 'none';
-            configSection.style.display = isExpanded ? 'none' : 'block';
-            toggleImage.src = isExpanded ? '/icon/down.png' : '/icon/up.png';
-        });
 
         const header = container.querySelector('.website-header') as HTMLElement;
         header.addEventListener('click', (e) => {
             if (!(e.target as HTMLElement).closest('.delete-btn')) {
-                const isExpanded = configSection.style.display !== 'none';
-                configSection.style.display = isExpanded ? 'none' : 'block';
-                toggleImage.src = isExpanded ? '/icon/down.png' : '/icon/up.png';
+                this.toggleConfigSection(container);
             }
         });
+    }
 
+    private setupWebsiteToggle(container: HTMLElement): void {
+        const toggleButton = container.querySelector('.toggle-btn') as HTMLElement;
+        const toggleImage = toggleButton.querySelector('img') as HTMLImageElement;
+
+        toggleButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggleConfigSection(container, toggleImage);
+        });
+    }
+
+    private toggleConfigSection(container: HTMLElement, toggleImage?: HTMLImageElement): void {
+        const configSection = container.querySelector('.website-config') as HTMLElement;
+        const isExpanded = configSection.style.display !== 'none';
+
+        configSection.style.display = isExpanded ? 'none' : 'block';
+
+        if (toggleImage) {
+            toggleImage.src = isExpanded ? '/icon/down.png' : '/icon/up.png';
+        } else {
+            const img = container.querySelector('.toggle-btn img') as HTMLImageElement;
+            if (img) {
+                img.src = isExpanded ? '/icon/down.png' : '/icon/up.png';
+            }
+        }
+    }
+
+    private setupDeleteButton(container: HTMLElement, domain: string): void {
         const deleteButton = container.querySelector('.delete-btn') as HTMLElement;
         deleteButton.addEventListener('click', async (e) => {
             e.stopPropagation();
-            if (confirm(`Are you sure you want to remove TabShield protection from ${domain}?`)) {
+            if (confirm(`Are you sure you want to remove TabShield from ${domain}?`)) {
                 await this.configService.removeDomainConfig(domain);
                 await this.loadWebsites();
             }
         });
-
-        this.setupCheckboxes(container, domain, config);
-
-        this.setupLabelInput(container, domain, config);
-
-        this.setupColorPicker(container, domain, config);
-
-        this.websitesList.appendChild(container);
     }
 
     private setupCheckboxes(container: HTMLElement, domain: string, config: DomainConfig): void {
@@ -136,13 +160,22 @@ export class Settings {
         const labelInput = container.querySelector('.label-input') as HTMLInputElement;
         labelInput.value = config.label || '';
 
-        let timeout: number | undefined;
+        const debouncedUpdate = this.debounce(async (value: string) => {
+            await this.configService.updateDomainConfig(domain, { label: value });
+        }, 400);
+
         labelInput.addEventListener('keyup', () => {
-            window.clearTimeout(timeout);
-            timeout = window.setTimeout(async () => {
-                await this.configService.updateDomainConfig(domain, { label: labelInput.value });
-            }, 400);
+            debouncedUpdate(labelInput.value);
         });
+    }
+
+    private debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
+        let timeout: number | undefined;
+
+        return (...args: Parameters<T>) => {
+            window.clearTimeout(timeout);
+            timeout = window.setTimeout(() => func(...args), wait);
+        };
     }
 
     private setupColorPicker(container: HTMLElement, domain: string, config: DomainConfig): void {
@@ -155,7 +188,7 @@ export class Settings {
 
             option.addEventListener('click', async () => {
                 this.setSelectedColor(container, option);
-                const color = option.getAttribute('data-color') || '#dd2d23';
+                const color = option.getAttribute('data-color') || ConfigService.DEFAULT_CONFIG.labelColor;
                 await this.configService.updateDomainConfig(domain, { labelColor: color });
             });
         });
@@ -168,15 +201,15 @@ export class Settings {
     }
 
     private setupEventListeners(): void {
-        this.exportButton.addEventListener('click', () => {
+        this.elements.exportButton.addEventListener('click', () => {
             this.exportConfiguration();
         });
 
-        this.importButton.addEventListener('click', () => {
-            this.importFileInput.click();
+        this.elements.importButton.addEventListener('click', () => {
+            this.elements.importFileInput.click();
         });
 
-        this.importFileInput.addEventListener('change', (event) => {
+        this.elements.importFileInput.addEventListener('change', (event) => {
             const file = (event.target as HTMLInputElement).files?.[0];
             if (file) {
                 this.importConfiguration(file);
@@ -187,24 +220,25 @@ export class Settings {
     private exportConfiguration(): void {
         try {
             const jsonConfig = JSON.stringify(this.domains, null, 2);
-
             const blob = new Blob([jsonConfig], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
 
-            const downloadLink = document.createElement('a');
-            downloadLink.href = url;
-            downloadLink.download = `tabshield-config-${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(downloadLink);
-            downloadLink.click();
-
-            document.body.removeChild(downloadLink);
-            URL.revokeObjectURL(url);
-
+            this.downloadFile(url, `tabshield-config-${new Date().toISOString().split('T')[0]}.json`);
             this.showStatusMessage('Configuration exported successfully.', 'success');
         } catch (error) {
             console.error('Export failed:', error);
             this.showStatusMessage('Failed to export configuration.', 'error');
         }
+    }
+
+    private downloadFile(url: string, filename: string): void {
+        const downloadLink = document.createElement('a');
+        downloadLink.href = url;
+        downloadLink.download = filename;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        URL.revokeObjectURL(url);
     }
 
     private async importConfiguration(file: File): Promise<void> {
@@ -216,39 +250,53 @@ export class Settings {
                 throw new Error('Invalid configuration file format');
             }
 
-            if (Object.keys(this.domains).length > 0) {
-                const mergeConfirmed = confirm('Existing configuration detected. Do you want to merge with your current settings? Click "OK" to merge or "Cancel" to replace all settings.');
+            const result = await this.handleConfigMerging(importedConfig);
 
-                if (mergeConfirmed) {
-                    Object.keys(importedConfig).forEach(domain => {
-                        if (!this.domains[domain]) {
-                            this.domains[domain] = importedConfig[domain];
-                        }
-                    });
-                } else {
-                    this.domains = importedConfig;
-                }
-            } else {
-                this.domains = importedConfig;
+            if (result.success) {
+                await this.configService.saveDomainsConfig(this.domains);
+                await this.loadWebsites();
             }
 
-            await this.configService.saveDomainsConfig(this.domains);
-            await this.loadWebsites();
-
-            this.showStatusMessage('Configuration imported successfully.', 'success');
+            this.showStatusMessage(result.message, result.success ? 'success' : 'error');
         } catch (error) {
             console.error('Import failed:', error);
             this.showStatusMessage(`Import failed: ${(error as Error).message}`, 'error');
         }
 
-        this.importFileInput.value = '';
+        this.elements.importFileInput.value = '';
+    }
+
+    private async handleConfigMerging(importedConfig: Record<string, DomainConfig>): Promise<ImportResult> {
+        const hasExistingConfig = Object.keys(this.domains).length > 0;
+
+        if (!hasExistingConfig) {
+            this.domains = importedConfig;
+            return { success: true, message: 'Configuration imported successfully.' };
+        }
+
+        const mergeConfirmed = confirm(
+            'Existing configuration detected. Do you want to merge with your current settings? ' +
+            'Click "OK" to merge or "Cancel" to replace all settings.'
+        );
+
+        if (mergeConfirmed) {
+            Object.keys(importedConfig).forEach(domain => {
+                if (!this.domains[domain]) {
+                    this.domains[domain] = importedConfig[domain];
+                }
+            });
+            return { success: true, message: 'Configuration merged successfully.' };
+        } else {
+            this.domains = importedConfig;
+            return { success: true, message: 'Configuration replaced successfully.' };
+        }
     }
 
     private readFileAsText(file: File): Promise<string> {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = (e) => resolve(e.target?.result as string);
-            reader.onerror = (e) => reject(new Error('Failed to read file' + e));
+            reader.onerror = (e) => reject(new Error('Failed to read file: ' + e));
             reader.readAsText(file);
         });
     }
@@ -276,23 +324,19 @@ export class Settings {
     }
 
     private showStatusMessage(message: string, type: 'success' | 'error'): void {
-        this.importStatusMessage.textContent = message;
-        this.importStatusMessage.className = `status-message ${type}`;
+        const { importStatusMessage } = this.elements;
+        importStatusMessage.textContent = message;
+        importStatusMessage.className = `status-message ${type}`;
+        importStatusMessage.style.display = 'block';
 
         setTimeout(() => {
-            this.importStatusMessage.style.display = 'none';
+            importStatusMessage.style.display = 'none';
         }, 5000);
-    }
-
-    private getElement<T extends HTMLElement>(id: string): T {
-        const element = document.getElementById(id) as T | null;
-        if (!element) throw new Error(`Element with ID '${id}' not found`);
-        return element;
     }
 }
 
 if (typeof window !== "undefined") {
     document.addEventListener("DOMContentLoaded", () => {
-        new Settings().init();
+        new Options().init();
     });
 }

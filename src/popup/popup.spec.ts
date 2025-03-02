@@ -6,7 +6,6 @@ import browser from "webextension-polyfill";
 import { Popup } from "./popup";
 import { ConfigService } from "../common/configService";
 import { FakeStorage } from "../common/fakeStorage";
-import { isSpecialUrl } from "../common/urlUtil";
 
 function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -40,6 +39,8 @@ describe("Popup", () => {
         popup = new Popup();
         // @ts-ignore (force replace private property for testing)
         popup["configService"] = configService;
+
+        jest.clearAllMocks();
     });
 
     test("should initialize and toggle UI based on domain config", async () => {
@@ -154,12 +155,5 @@ describe("Popup", () => {
         await popup.handleToggle("example.com", true);
 
         expect(browser.tabs.reload).toHaveBeenCalledWith(1);
-    });
-
-    test("should correctly identify special URLs", () => {
-        const specialUrls = ["about:config", "chrome://extensions", "edge://settings"];
-        specialUrls.forEach((url) => {
-            expect(isSpecialUrl(url)).toBe(true);
-        });
     });
 });

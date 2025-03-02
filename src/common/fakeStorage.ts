@@ -1,4 +1,6 @@
-export class FakeStorage {
+import { StorageInterface } from "./storageInterface";
+
+export class FakeStorage implements StorageInterface {
     private store: Record<string, unknown> = {};
 
     async set<T>(key: string, value: T): Promise<void> {
