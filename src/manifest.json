@@ -23,6 +23,14 @@
       "matches": [
         "<all_urls>"
       ]
+    },
+    {
+      "resources": [
+        "src/options/options.html"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ],
   "{{chrome}}.action": {
@@ -31,6 +39,10 @@
   "{{firefox}}.browser_action": {
     "default_popup": "src/popup/popup.html"
   },
+  "{{firefox}}.options_ui": {
+    "page": "src/options/options.html"
+  },
+  "{{chrome}}.options_page": "src/options/options.html",
   "content_scripts": [
     {
       "matches": [

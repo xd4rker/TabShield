@@ -95,12 +95,32 @@ p {
 } */
 
 #heading {
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
     border-bottom: 1px solid #ddd;
     padding-bottom: 10px;
     margin-bottom: 15px;
+    position: relative;
+}
+
+#options-btn {
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    position: absolute;
+    right: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+#options-btn:hover {
+    background-color: #f0f0f0;
 }
 
 #special-page-container {

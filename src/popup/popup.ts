@@ -15,6 +15,7 @@ export class Popup {
     private labelInput: HTMLInputElement;
     private colorPicker: HTMLElement;
     private colorOptions: NodeListOf<Element>;
+    private optionsButton: HTMLElement;
 
     constructor() {
         this.enableButton = this.getElement("enable-btn");
@@ -26,10 +27,12 @@ export class Popup {
         this.labelInput = this.getElement("label-input");
         this.colorPicker = this.getElement("color-picker");
         this.colorOptions = document.querySelectorAll(".color-option");
+        this.optionsButton = this.getElement("options-btn");
     }
 
     async init() {
         this.setVersion();
+        this.initMenu();
 
         const url = await this.getCurrentUrl();
         if (!url || isSpecialUrl(url)) {
@@ -48,6 +51,13 @@ export class Popup {
     private setVersion(): void {
         const versionElement = this.getElement("extension-version");
         versionElement.textContent = 'v' + browser.runtime.getManifest().version;
+    }
+
+    private initMenu() {
+        this.optionsButton.addEventListener("click", () => {
+            browser.tabs.create({ url: "/src/options/options.html" });
+            window.close();
+        });
     }
 
     private setupEventListeners(hostname: string, config: DomainConfig | null) {

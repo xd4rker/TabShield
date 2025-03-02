@@ -29,7 +29,7 @@ export class ConfigService {
         await this.saveDomainsConfig(domains);
     }
 
-    private async saveDomainsConfig(domains: Record<string, DomainConfig>): Promise<void> {
+    public async saveDomainsConfig(domains: Record<string, DomainConfig>): Promise<void> {
         await this.storage.set(ConfigService.CONFIG_KEY_DOMAINS, domains);
     }
 

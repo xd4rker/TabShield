@@ -82,7 +82,6 @@ export class ContentScript {
             fontSize: "15px",
             fontWeight: "bold",
             zIndex: "999999",
-            width: "50%",
             textAlign: "center",
             fontFamily: "Consolas, monaco, monospace",
         });
