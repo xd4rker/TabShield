@@ -39,6 +39,8 @@ describe("Popup", () => {
         popup = new Popup();
         // @ts-ignore (force replace private property for testing)
         popup["configService"] = configService;
+
+        jest.clearAllMocks();
     });
 
     test("should initialize and toggle UI based on domain config", async () => {
