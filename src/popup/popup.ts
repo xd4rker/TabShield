@@ -2,7 +2,7 @@ import browser from "webextension-polyfill";
 import { ConfigService } from "../common/configService";
 import { Storage } from "../common/storage";
 import { DomainConfig } from "../common/types";
-import { extractHostname, isSpecialUrl } from "../common/urlUtil";
+import { UrlUtils } from "../common/utils/urlUtils";
 
 export class Popup {
     private configService = new ConfigService(new Storage());
@@ -35,12 +35,12 @@ export class Popup {
         this.initMenu();
 
         const url = await this.getCurrentUrl();
-        if (!url || isSpecialUrl(url)) {
+        if (!url || UrlUtils.isSpecialUrl(url)) {
             this.showSpecialPageContainer();
             return;
         }
 
-        const hostname = extractHostname(url);
+        const hostname = UrlUtils.extractHostname(url);
         if (!hostname) return;
 
         const currentConfig = await this.configService.getDomainConfig(hostname);
