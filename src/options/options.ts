@@ -117,7 +117,7 @@ export class Options {
         const deleteButton = container.querySelector('.delete-btn') as HTMLElement;
         deleteButton.addEventListener('click', async (e) => {
             e.stopPropagation();
-            if (confirm(`Are you sure you want to remove TabShield protection from ${domain}?`)) {
+            if (confirm(`Are you sure you want to remove TabShield from ${domain}?`)) {
                 await this.configService.removeDomainConfig(domain);
                 await this.loadWebsites();
             }
