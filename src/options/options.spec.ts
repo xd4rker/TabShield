@@ -35,9 +35,7 @@ describe("Options Page", () => {
         document.head.appendChild(style);
 
         configService = new ConfigService(new FakeStorage());
-        options = new Options();
-        // @ts-ignore (force replace private property for testing)
-        options["configService"] = configService;
+        options = new Options(configService);
 
         jest.clearAllMocks();
     });

@@ -36,9 +36,7 @@ describe("Popup", () => {
         document.head.appendChild(style);
 
         configService = new ConfigService(new FakeStorage());
-        popup = new Popup();
-        // @ts-ignore (force replace private property for testing)
-        popup["configService"] = configService;
+        popup = new Popup(configService);
 
         jest.clearAllMocks();
     });

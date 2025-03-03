@@ -2,7 +2,7 @@ import { ConfigService } from "../common/configService";
 import { DomainConfig } from "../common/types";
 import { DomUtils } from "../common/utils/domUtils";
 import { BrowserUtils } from "../common/utils/browserUtils";
-import { Storage } from "../common/storage/storage";
+import { SyncStorage } from "../common/storage/synStorage";
 
 interface ImportResult {
     success: boolean;
@@ -10,7 +10,7 @@ interface ImportResult {
 }
 
 export class Options {
-    private configService = new ConfigService(new Storage());
+    private readonly configService;
     private domains: Record<string, DomainConfig> = {};
 
     private readonly elements = {
@@ -23,6 +23,10 @@ export class Options {
         versionElement: DomUtils.getElement<HTMLElement>("extension-version"),
         versionElement2: DomUtils.getElement<HTMLElement>("extension-version-2")
     };
+
+    constructor(configService: ConfigService) {
+        this.configService = configService;
+    }
 
     async init(): Promise<void> {
         this.setVersion();
@@ -337,6 +341,7 @@ export class Options {
 
 if (typeof window !== "undefined") {
     document.addEventListener("DOMContentLoaded", () => {
-        new Options().init();
+        const configService = new ConfigService(new SyncStorage());
+        new Options(configService).init();
     });
 }

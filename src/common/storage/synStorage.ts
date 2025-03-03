@@ -1,7 +1,7 @@
 import browser from "webextension-polyfill";
 import { StorageInterface } from "./storageInterface";
 
-export class Storage implements StorageInterface {
+export class SyncStorage implements StorageInterface {
     async set<T>(key: string, value: T): Promise<void> {
         await browser.storage.sync.set({ [key]: value });
     }

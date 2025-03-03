@@ -3,10 +3,10 @@ import { DomainConfig } from "../common/types";
 import { UrlUtils } from "../common/utils/urlUtils";
 import { DomUtils } from "../common/utils/domUtils";
 import { BrowserUtils } from "../common/utils/browserUtils";
-import { Storage } from "../common/storage/storage";
+import { SyncStorage } from "../common/storage/synStorage";
 
 export class Popup {
-    private configService = new ConfigService(new Storage());
+    private readonly configService;
 
     private readonly elements = {
         enableButton: DomUtils.getElement<HTMLElement>("enable-btn"),
@@ -24,6 +24,10 @@ export class Popup {
         versionElement: DomUtils.getElement<HTMLElement>("extension-version"),
         colorOptions: document.querySelectorAll(".color-option")
     };
+
+    constructor(configService: ConfigService) {
+        this.configService = configService;
+    }
 
     async init() {
         this.setVersion();
@@ -194,6 +198,7 @@ export class Popup {
 
 if (typeof window !== "undefined") {
     document.addEventListener("DOMContentLoaded", () => {
-        new Popup().init();
+        const configService = new ConfigService(new SyncStorage());
+        new Popup(configService).init();
     });
 }

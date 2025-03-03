@@ -28,10 +28,7 @@ describe("ContentScript", () => {
     beforeEach(() => {
         document.body.innerHTML = "";
         configService = new ConfigService(new FakeStorage());
-        contentScript = new ContentScript();
-
-        // @ts-ignore (force replace private property for testing)
-        contentScript["configService"] = configService;
+        contentScript = new ContentScript(configService);
     });
 
     afterEach(() => {

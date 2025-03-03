@@ -1,10 +1,14 @@
 import browser from "webextension-polyfill";
 import { ConfigService } from "../common/configService";
-import { Storage } from "../common/storage/storage";
+import { SyncStorage } from "../common/storage/synStorage";
 
 export class ContentScript {
-    private configService = new ConfigService(new Storage());
+    private readonly configService;
     private mutationObserver: MutationObserver | null = null;
+
+    constructor(configService: ConfigService) {
+        this.configService = configService;
+    }
 
     public async init(): Promise<void> {
         const hostname = window.location.hostname;
@@ -206,4 +210,5 @@ export class ContentScript {
     }
 }
 
-new ContentScript().init();
+const configService = new ConfigService(new SyncStorage());
+new ContentScript(configService).init();
