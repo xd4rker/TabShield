@@ -4,11 +4,13 @@ TabShield is a browser extension designed to prevent accidental actions on impor
 
 # Features
 
-- 🔖 **Custom Labels**: Display a clear, colored label on tabs to easily differentiate environments or important websites.
+**Custom labels**: Display a clear, colored label on tabs to easily differentiate environments or important websites.
 
-- ⚠️ **Confirmation for Forms**: Add a confirmation step before submitting forms.
+**Confirmation for forms**: Add a confirmation step before submitting forms.
 
-- 🚫 **Disable Form Inputs**: Block all input fields on selected websites to avoid unintended modifications.
+**Disable form inputs**: Block all input fields on selected websites to avoid unintended changes.
+
+**Configuration Import/Export**: Save, share, and restore your TabShield settings effortlessly.
 
 # Installation
 
