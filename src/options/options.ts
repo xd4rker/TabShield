@@ -11,7 +11,6 @@ interface ImportResult {
 
 export class Options {
     private readonly configService;
-    private domains: Record<string, DomainConfig> = {};
 
     private readonly elements = {
         websitesList: DomUtils.getElement<HTMLElement>("websites-list"),
@@ -23,6 +22,8 @@ export class Options {
         versionElement: DomUtils.getElement<HTMLElement>("extension-version"),
         versionElement2: DomUtils.getElement<HTMLElement>("extension-version-2")
     };
+
+    private domains: Record<string, DomainConfig> = {};
 
     constructor(configService: ConfigService) {
         this.configService = configService;
