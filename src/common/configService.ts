@@ -1,4 +1,4 @@
-import { StorageInterface } from "./storageInterface";
+import { StorageInterface } from "./storage/storageInterface";
 import { DomainConfig } from "./types";
 
 export class ConfigService {

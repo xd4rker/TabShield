@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import { ConfigService } from "../common/configService";
-import { FakeStorage } from "../common/fakeStorage";
+import { FakeStorage } from "../common/storage/fakeStorage";
 import { ContentScript } from "./content";
 
 jest.mock("webextension-polyfill", () => ({

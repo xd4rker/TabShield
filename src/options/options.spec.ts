@@ -4,7 +4,7 @@ import fs from "fs";
 import path from "path";
 import { Options } from "./options";
 import { ConfigService } from "../common/configService";
-import { FakeStorage } from "../common/fakeStorage";
+import { FakeStorage } from "../common/storage/fakeStorage";
 
 function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));

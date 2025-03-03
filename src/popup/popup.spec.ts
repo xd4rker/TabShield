@@ -5,7 +5,7 @@ import path from "path";
 import browser from "webextension-polyfill";
 import { Popup } from "./popup";
 import { ConfigService } from "../common/configService";
-import { FakeStorage } from "../common/fakeStorage";
+import { FakeStorage } from "../common/storage/fakeStorage";
 
 function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));

@@ -1,10 +1,9 @@
-import browser from "webextension-polyfill";
 import { ConfigService } from "../common/configService";
 import { DomainConfig } from "../common/types";
 import { UrlUtils } from "../common/utils/urlUtils";
 import { DomUtils } from "../common/utils/domUtils";
-import { Storage } from "../common/storage";
 import { BrowserUtils } from "../common/utils/browserUtils";
+import { Storage } from "../common/storage/storage";
 
 export class Popup {
     private configService = new ConfigService(new Storage());
@@ -30,13 +29,13 @@ export class Popup {
         this.setVersion();
         this.initOptions();
 
-        const url = await this.getCurrentUrl();
+        const url = await BrowserUtils.getCurrentTabUrl();
         if (!url || UrlUtils.isSpecialUrl(url)) {
             this.showSpecialPageContainer();
             return;
         }
 
-        const hostname = UrlUtils.extractHostname(url);
+        const hostname = UrlUtils.getHostname(url);
         if (!hostname) return;
 
         const currentConfig = await this.configService.getDomainConfig(hostname);
@@ -186,11 +185,6 @@ export class Popup {
     private toggleLabelVisibility(show: boolean) {
         this.elements.colorPicker.style.display = show ? "flex" : "none";
         this.elements.labelField.style.display = show ? "flex" : "none";
-    }
-
-    private async getCurrentUrl(): Promise<string | null> {
-        const tab = (await browser.tabs.query({ currentWindow: true, active: true }))[0] ?? null;
-        return tab?.url || null;
     }
 
     private showSpecialPageContainer() {

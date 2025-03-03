@@ -1,8 +1,8 @@
 import { ConfigService } from "../common/configService";
-import { Storage } from "../common/storage";
 import { DomainConfig } from "../common/types";
 import { DomUtils } from "../common/utils/domUtils";
 import { BrowserUtils } from "../common/utils/browserUtils";
+import { Storage } from "../common/storage/storage";
 
 interface ImportResult {
     success: boolean;

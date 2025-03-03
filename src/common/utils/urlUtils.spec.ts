@@ -25,28 +25,28 @@ describe("UrlUtils.isSpecialUrl", () => {
 
 describe("getHostname", () => {
     test("should extract hostname from valid URLs", () => {
-        expect(UrlUtils.extractHostname("https://example.com")).toBe("example.com");
-        expect(UrlUtils.extractHostname("http://sub.example.co.com")).toBe("sub.example.co.com");
-        expect(UrlUtils.extractHostname("https://www.google.com/search?q=test")).toBe("www.google.com");
+        expect(UrlUtils.getHostname("https://example.com")).toBe("example.com");
+        expect(UrlUtils.getHostname("http://sub.example.co.com")).toBe("sub.example.co.com");
+        expect(UrlUtils.getHostname("https://www.google.com/search?q=test")).toBe("www.google.com");
     });
 
     test("should return null for invalid URLs", () => {
-        expect(UrlUtils.extractHostname("invalid-url")).toBe(null);
-        expect(UrlUtils.extractHostname("not a url")).toBe(null);
-        expect(UrlUtils.extractHostname("ftp://example.com")).toBe("example.com");
+        expect(UrlUtils.getHostname("invalid-url")).toBe(null);
+        expect(UrlUtils.getHostname("not a url")).toBe(null);
+        expect(UrlUtils.getHostname("ftp://example.com")).toBe("example.com");
     });
 
     test("should handle URLs with ports", () => {
-        expect(UrlUtils.extractHostname("http://localhost:8080")).toBe("localhost");
-        expect(UrlUtils.extractHostname("https://127.0.0.1:3000")).toBe("127.0.0.1");
+        expect(UrlUtils.getHostname("http://localhost:8080")).toBe("localhost");
+        expect(UrlUtils.getHostname("https://127.0.0.1:3000")).toBe("127.0.0.1");
     });
 
     test("should handle URLs with authentication info", () => {
-        expect(UrlUtils.extractHostname("https://user:pass@example.com")).toBe("example.com");
-        expect(UrlUtils.extractHostname("http://admin:1234@sub.example.com")).toBe("sub.example.com");
+        expect(UrlUtils.getHostname("https://user:pass@example.com")).toBe("example.com");
+        expect(UrlUtils.getHostname("http://admin:1234@sub.example.com")).toBe("sub.example.com");
     });
 
     test("should handle URLs with unusual but valid formats", () => {
-        expect(UrlUtils.extractHostname("http://[2001:db8::1]:8080")).toBe("[2001:db8::1]");
+        expect(UrlUtils.getHostname("http://[2001:db8::1]:8080")).toBe("[2001:db8::1]");
     });
 });
