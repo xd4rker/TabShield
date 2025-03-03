@@ -21,7 +21,7 @@
         "icon/icon-white.png"
       ],
       "matches": [
-        "<all_urls>"
+        "*://*/*"
       ]
     },
     {
@@ -29,7 +29,7 @@
         "src/options/options.html"
       ],
       "matches": [
-        "<all_urls>"
+        "*://*/*"
       ]
     }
   ],
@@ -46,7 +46,7 @@
   "content_scripts": [
     {
       "matches": [
-        "<all_urls>"
+        "*://*/*"
       ],
       "js": [
         "src/content-script/content.ts"
