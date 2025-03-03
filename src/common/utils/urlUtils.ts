@@ -7,9 +7,9 @@ export class UrlUtils {
     }
 
     /**
-     * Extract hostname from URL
+     * Get hostname from URL
      */
-    static extractHostname(url: string): string | null {
+    static getHostname(url: string): string | null {
         try {
             return new URL(url).hostname;
         } catch {
