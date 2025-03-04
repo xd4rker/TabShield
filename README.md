@@ -1,6 +1,6 @@
 # <img src="public/icon/48.png" align="absmiddle"> TabShield
 
-TabShield is a browser extension designed to prevent accidental actions on important websites. Whether you're a developer working across different environments, a professional managing critical data, or a user who wants extra safeguards while browsing, TabShield will help you minimize mistakes and unintended changes.
+TabShield is a browser extension that helps prevent accidental actions on important websites. Whether you're a developer working across different environments, a professional managing critical data, or a user who wants extra safeguards while browsing, TabShield will help you minimize mistakes and unintended changes.
 
 # Features
 
