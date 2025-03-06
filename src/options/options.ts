@@ -12,18 +12,11 @@ interface ImportResult {
 export class Options {
     private readonly configService;
 
-    private readonly elements = {
-        websitesList: DomUtils.getElement<HTMLElement>("websites-list"),
-        websiteTemplate: DomUtils.getElement<HTMLTemplateElement>("website-template"),
-        exportButton: DomUtils.getElement<HTMLElement>("export-btn"),
-        importButton: DomUtils.getElement<HTMLElement>("import-btn"),
-        importFileInput: DomUtils.getElement<HTMLInputElement>("import-file"),
-        importStatusMessage: DomUtils.getElement<HTMLElement>("import-status"),
-        versionElement: DomUtils.getElement<HTMLElement>("extension-version"),
-        versionElement2: DomUtils.getElement<HTMLElement>("extension-version-2")
-    };
+    private readonly elements = this.getElements();
 
     private domains: Record<string, DomainConfig> = {};
+
+    static readonly FILE_MAX_SIZE = 1000000;
 
     constructor(configService: ConfigService) {
         this.configService = configService;
@@ -35,35 +28,38 @@ export class Options {
         this.setupEventListeners();
     }
 
+    private getElements() {
+        return {
+            websitesList: DomUtils.getElement<HTMLElement>("websites-list"),
+            websiteTemplate: DomUtils.getElement<HTMLTemplateElement>("website-template"),
+            exportButton: DomUtils.getElement<HTMLElement>("export-btn"),
+            importButton: DomUtils.getElement<HTMLElement>("import-btn"),
+            importFileInput: DomUtils.getElement<HTMLInputElement>("import-file"),
+            importStatusMessage: DomUtils.getElement<HTMLElement>("import-status"),
+            versionElements: [
+                DomUtils.getElement<HTMLElement>("extension-version"),
+                DomUtils.getElement<HTMLElement>("extension-version-2")
+            ]
+        };
+    }
+
     private setVersion(): void {
-        const version = BrowserUtils.getExtensionVersion();
-        this.elements.versionElement.textContent = 'v' + version;
-        this.elements.versionElement2.textContent = 'v' + version;
+        const version = `v${BrowserUtils.getExtensionVersion()}`;
+        this.elements.versionElements.forEach(el => el.textContent = version);
     }
 
     private async loadWebsites(): Promise<void> {
         this.domains = await this.configService.loadDomainsConfig();
         const sortedDomains = Object.keys(this.domains).sort();
-        const { websitesList } = this.elements;
-
-        websitesList.innerHTML = '';
-
-        if (sortedDomains.length === 0) {
-            websitesList.appendChild(this.createEmptyMessage());
-            return;
-        }
+        this.elements.websitesList.innerHTML = sortedDomains.length ? "" : this.createEmptyMessage();
 
         sortedDomains.forEach(domain => {
             this.createWebsiteElement(domain, this.domains[domain]);
         });
     }
 
-    private createEmptyMessage(): HTMLElement {
-        const emptyMessage = document.createElement('p');
-        emptyMessage.textContent = 'No websites are currently enabled.';
-        emptyMessage.style.textAlign = 'center';
-        emptyMessage.style.color = '#666';
-        return emptyMessage;
+    private createEmptyMessage(): string {
+        return `<p style="text-align: center; color: #666;">No websites are currently enabled.</p>`;
     }
 
     private createWebsiteElement(domain: string, config: DomainConfig): void {
@@ -216,9 +212,7 @@ export class Options {
 
         this.elements.importFileInput.addEventListener('change', (event) => {
             const file = (event.target as HTMLInputElement).files?.[0];
-            if (file) {
-                this.importConfiguration(file);
-            }
+            if (file) this.importConfiguration(file);
         });
     }
 
@@ -246,16 +240,21 @@ export class Options {
         URL.revokeObjectURL(url);
     }
 
+    private validateFile(file: File) {
+        if (file.size > Options.FILE_MAX_SIZE) {
+            throw new Error(`File is too large. Max size is ${Options.FILE_MAX_SIZE / 1000000}MB`);
+        }
+    }
+
     private async importConfiguration(file: File): Promise<void> {
         try {
+            this.validateFile(file);
             const fileContent = await this.readFileAsText(file);
             const importedConfig = JSON.parse(fileContent);
 
-            if (!this.validateConfig(importedConfig)) {
-                throw new Error('Invalid configuration file format');
-            }
+            this.validateConfig(importedConfig);
 
-            const result = await this.handleConfigMerging(importedConfig);
+            const result = await this.mergeOrReplaceConfig(importedConfig);
 
             if (result.success) {
                 await this.configService.saveDomainsConfig(this.domains);
@@ -271,30 +270,25 @@ export class Options {
         this.elements.importFileInput.value = '';
     }
 
-    private async handleConfigMerging(importedConfig: Record<string, DomainConfig>): Promise<ImportResult> {
-        const hasExistingConfig = Object.keys(this.domains).length > 0;
-
-        if (!hasExistingConfig) {
+    private async mergeOrReplaceConfig(importedConfig: Record<string, DomainConfig>): Promise<ImportResult> {
+        if (!Object.keys(this.domains).length) {
             this.domains = importedConfig;
-            return { success: true, message: 'Configuration imported successfully.' };
+            return { success: true, message: "Configuration imported successfully." };
         }
 
-        const mergeConfirmed = confirm(
-            'Existing configuration detected. Do you want to merge with your current settings? ' +
-            'Click "OK" to merge or "Cancel" to replace all settings.'
-        );
+        const merge = confirm('Merge with existing configuration? OK to merge, Cancel to replace all configuration');
 
-        if (mergeConfirmed) {
+        if (merge) {
             Object.keys(importedConfig).forEach(domain => {
                 if (!this.domains[domain]) {
                     this.domains[domain] = importedConfig[domain];
                 }
             });
-            return { success: true, message: 'Configuration merged successfully.' };
         } else {
             this.domains = importedConfig;
-            return { success: true, message: 'Configuration replaced successfully.' };
         }
+
+        return { success: true, message: merge ? "Configuration merged successfully." : "Configuration replaced successfully." };
     }
 
     private readFileAsText(file: File): Promise<string> {
@@ -306,26 +300,24 @@ export class Options {
         });
     }
 
-    private validateConfig(config: any): boolean {
-        if (!config || typeof config !== 'object') return false;
+    private validateConfig(config: any) {
+        if (!config || typeof config !== 'object') throw new Error("Invalid configuration: Expected an object.");
 
         for (const domain in config) {
             const domainConfig = config[domain];
-            if (!domainConfig || typeof domainConfig !== 'object') return false;
+            if (!domainConfig || typeof domainConfig !== 'object') throw new Error("Invalid configuration: Expected an object.");
 
             if (typeof domainConfig.displayLabel !== 'boolean' ||
                 typeof domainConfig.confirmForms !== 'boolean' ||
                 typeof domainConfig.disableInputs !== 'boolean' ||
                 typeof domainConfig.labelColor !== 'string') {
-                return false;
+                throw new Error("Invalid configuration");
             }
 
             if (domainConfig.label !== undefined && typeof domainConfig.label !== 'string') {
-                return false;
+                throw new Error("Invalid configuration");
             }
         }
-
-        return true;
     }
 
     private showStatusMessage(message: string, type: 'success' | 'error'): void {
