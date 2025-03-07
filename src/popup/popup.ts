@@ -7,31 +7,36 @@ import { SyncStorage } from "../common/storage/synStorage";
 
 export class Popup {
     private readonly configService;
-
-    private readonly elements = {
-        enableButton: DomUtils.getElement<HTMLElement>("enable-btn"),
-        disableButton: DomUtils.getElement<HTMLElement>("disable-btn"),
-        displayLabelCheckbox: DomUtils.getElement<HTMLInputElement>("display-label-checkbox"),
-        enableConfirmCheckbox: DomUtils.getElement<HTMLInputElement>("enable-confirm-checkbox"),
-        disableInputsCheckbox: DomUtils.getElement<HTMLInputElement>("disable-inputs-checkbox"),
-        labelField: DomUtils.getElement<HTMLElement>("custom-label"),
-        labelInput: DomUtils.getElement<HTMLInputElement>("label-input"),
-        colorPicker: DomUtils.getElement<HTMLElement>("color-picker"),
-        optionsButton: DomUtils.getElement<HTMLElement>("options-btn"),
-        enabledContainer: DomUtils.getElement<HTMLElement>("enabled-container"),
-        disabledContainer: DomUtils.getElement<HTMLElement>("disabled-container"),
-        specialPageContainer: DomUtils.getElement<HTMLElement>("special-page-container"),
-        versionElement: DomUtils.getElement<HTMLElement>("extension-version"),
-        colorOptions: document.querySelectorAll(".color-option")
-    };
+    private readonly elements = this.getElements();
 
     constructor(configService: ConfigService) {
         this.configService = configService;
     }
 
+    private getElements() {
+        return {
+            controls: {
+                enable: DomUtils.getElement<HTMLElement>("enable-btn"),
+                disable: DomUtils.getElement<HTMLElement>("disable-btn"),
+                options: DomUtils.getElement<HTMLElement>("options-btn"),
+            },
+            displayLabelCheckbox: DomUtils.getElement<HTMLInputElement>("display-label-checkbox"),
+            enableConfirmCheckbox: DomUtils.getElement<HTMLInputElement>("enable-confirm-checkbox"),
+            disableInputsCheckbox: DomUtils.getElement<HTMLInputElement>("disable-inputs-checkbox"),
+            labelField: DomUtils.getElement<HTMLElement>("custom-label"),
+            labelInput: DomUtils.getElement<HTMLInputElement>("label-input"),
+            colorPicker: DomUtils.getElement<HTMLElement>("color-picker"),
+            enabledContainer: DomUtils.getElement<HTMLElement>("enabled-container"),
+            disabledContainer: DomUtils.getElement<HTMLElement>("disabled-container"),
+            specialPageContainer: DomUtils.getElement<HTMLElement>("special-page-container"),
+            versionElement: DomUtils.getElement<HTMLElement>("extension-version"),
+            colorOptions: document.querySelectorAll(".color-option")
+        }
+    }
+
     async init() {
         this.setVersion();
-        this.initOptions();
+        this.initMenuControl();
 
         const url = await BrowserUtils.getCurrentTabUrl();
         if (!url) {
@@ -56,16 +61,16 @@ export class Popup {
         this.elements.versionElement.textContent = 'v' + BrowserUtils.getExtensionVersion();
     }
 
-    private initOptions() {
-        this.elements.optionsButton.addEventListener("click", () => {
+    private initMenuControl() {
+        this.elements.controls.options.addEventListener("click", () => {
             BrowserUtils.openOptionsPage("/src/options/options.html");
-            window.close();
+            this.close();
         });
     }
 
     private setupEventListeners(hostname: string, config: DomainConfig | null) {
-        this.elements.enableButton.addEventListener("click", () => this.handleToggle(hostname, true));
-        this.elements.disableButton.addEventListener("click", () => this.handleToggle(hostname, false));
+        this.elements.controls.enable.addEventListener("click", () => this.handleToggle(hostname, true));
+        this.elements.controls.disable.addEventListener("click", () => this.handleToggle(hostname, false));
 
         if (!config) return;
 
@@ -131,7 +136,7 @@ export class Popup {
             clearTimeout(timeout);
             timeout = setTimeout(async () => {
                 await this.updateConfig(hostname, { label: this.elements.labelInput.value });
-            }, 400);
+            }, 500);
         });
 
         const { labelInput } = this.elements;
@@ -184,6 +189,9 @@ export class Popup {
         this.toggleUI(enable);
         await this.init();
         await BrowserUtils.reloadCurrentTab();
+        if (!enable) {
+            this.close();
+        }
     }
 
     private toggleUI(enabled: boolean) {
@@ -198,6 +206,10 @@ export class Popup {
 
     private showSpecialPageContainer() {
         this.elements.specialPageContainer.style.display = "block";
+    }
+
+    private close() {
+        window.close();
     }
 }
 

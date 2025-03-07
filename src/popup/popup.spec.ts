@@ -11,6 +11,7 @@ function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+jest.spyOn(window, "close").mockImplementation(() => { });
 jest.mock("webextension-polyfill", () => ({
     tabs: {
         query: jest.fn(),
