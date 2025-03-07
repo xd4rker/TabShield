@@ -34,7 +34,12 @@ export class Popup {
         this.initOptions();
 
         const url = await BrowserUtils.getCurrentTabUrl();
-        if (!url || UrlUtils.isSpecialUrl(url)) {
+        if (!url) {
+            console.error('Could not get current tab URL');
+            return;
+        }
+
+        if (UrlUtils.isSpecialUrl(url)) {
             this.showSpecialPageContainer();
             return;
         }
@@ -177,8 +182,8 @@ export class Popup {
         }
 
         this.toggleUI(enable);
-        await BrowserUtils.reloadCurrentTab();
         await this.init();
+        await BrowserUtils.reloadCurrentTab();
     }
 
     private toggleUI(enabled: boolean) {
