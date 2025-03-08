@@ -36,7 +36,7 @@ export class Popup {
 
     async init() {
         this.setVersion();
-        this.initMenuControl();
+        this.initOptionsButton();
 
         const url = await BrowserUtils.getCurrentTabUrl();
         if (!url) {
@@ -52,16 +52,16 @@ export class Popup {
         const hostname = UrlUtils.getHostname(url);
         if (!hostname) return;
 
-        const currentConfig = await this.configService.getDomainConfig(hostname);
-        this.toggleUI(Boolean(currentConfig));
-        this.setupEventListeners(hostname, currentConfig);
+        const config = await this.configService.getDomainConfig(hostname);
+        this.toggleUI(Boolean(config));
+        this.setupEventListeners(hostname, config);
     }
 
     private setVersion(): void {
         this.elements.versionElement.textContent = 'v' + BrowserUtils.getExtensionVersion();
     }
 
-    private initMenuControl() {
+    private initOptionsButton() {
         this.elements.controls.options.addEventListener("click", () => {
             BrowserUtils.openOptionsPage("/src/options/options.html");
             this.close();
@@ -189,9 +189,7 @@ export class Popup {
         this.toggleUI(enable);
         await this.init();
         await BrowserUtils.reloadCurrentTab();
-        if (!enable) {
-            this.close();
-        }
+        if (!enable) this.close();
     }
 
     private toggleUI(enabled: boolean) {
