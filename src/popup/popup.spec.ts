@@ -137,7 +137,7 @@ describe("Popup", () => {
         const labelInput = document.getElementById("label-input") as HTMLInputElement;
         const label = 'New label';
         labelInput.value = label;
-        labelInput.dispatchEvent(new Event("keyup"));
+        labelInput.dispatchEvent(new Event("input"));
 
         jest.advanceTimersByTime(500);
 

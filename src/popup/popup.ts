@@ -49,11 +49,11 @@ export class Popup {
     }
 
     private setVersion(): void {
-        this.elements.version.textContent = 'v' + BrowserUtils.getExtensionVersion();
+        this.elements.version.textContent = `v${BrowserUtils.getExtensionVersion()}`;
     }
 
     private setupCommonControls(): void {
-        this.elements.controls.options.addEventListener("click", () => this.openOptionsPage());
+        this.elements.controls.options.onclick = () => this.openOptionsPage();
     }
 
     private async applyConfig(): Promise<void> {
@@ -73,16 +73,16 @@ export class Popup {
 
         const config = await this.configService.getDomainConfig(hostname);
         this.toggleUI(Boolean(config));
-        this.initializeDomainControls(hostname, config);
+        this.setupDomainControls(hostname, config);
     }
 
-    private initializeDomainControls(hostname: string, config: DomainConfig | null): void {
-        this.elements.controls.enable.addEventListener("click", () => this.handleToggle(hostname, true));
-        this.elements.controls.disable.addEventListener("click", () => this.handleToggle(hostname, false));
+    private setupDomainControls(hostname: string, config: DomainConfig | null): void {
+        this.elements.controls.enable.onclick = () => this.handleToggle(hostname, true);
+        this.elements.controls.disable.onclick = () => this.handleToggle(hostname, false);
 
         if (!config) return;
 
-        this.initializeCheckboxes(hostname, config);
+        this.setupCheckboxes(hostname, config);
         this.setupLabelInput(hostname, config);
         this.setupColorPicker(hostname, config);
     }
@@ -110,8 +110,8 @@ export class Popup {
         await BrowserUtils.reloadCurrentTab();
     }
 
-    private initializeCheckboxes(hostname: string, config: DomainConfig): void {
-        this.initializeFeatureCheckbox(
+    private setupCheckboxes(hostname: string, config: DomainConfig): void {
+        this.setupCheckbox(
             this.elements.checkboxes.displayLabel,
             hostname,
             "displayLabel",
@@ -119,14 +119,14 @@ export class Popup {
             (checked) => this.toggleLabelVisibility(checked)
         );
 
-        this.initializeFeatureCheckbox(
+        this.setupCheckbox(
             this.elements.checkboxes.enableConfirm,
             hostname,
             "confirmForms",
             config.confirmForms
         );
 
-        this.initializeFeatureCheckbox(
+        this.setupCheckbox(
             this.elements.checkboxes.disableInputs,
             hostname,
             "disableInputs",
@@ -134,7 +134,7 @@ export class Popup {
         );
     }
 
-    private initializeFeatureCheckbox(
+    private setupCheckbox(
         checkbox: HTMLInputElement,
         hostname: string,
         key: keyof DomainConfig,
@@ -142,39 +142,25 @@ export class Popup {
         callback?: (checked: boolean) => void
     ): void {
         checkbox.checked = state;
+        checkbox.onchange = async () => {
+            await this.updateConfig(hostname, { [key]: checkbox.checked });
+            callback?.(checkbox.checked);
+        };
 
-        checkbox.addEventListener("change", async () => {
-            await this.updateConfig(hostname, { [key]: checkbox.checked } as Partial<DomainConfig>);
-
-            if (callback) {
-                callback(checkbox.checked);
-            }
-        });
-
-        if (key === "displayLabel" && callback) {
-            callback(checkbox.checked);
+        if (key === "displayLabel") {
+            callback?.(checkbox.checked);
         }
     }
 
     private setupLabelInput(hostname: string, config: DomainConfig): void {
-        let timeout: NodeJS.Timeout;
-        this.elements.label.input.addEventListener("keyup", () => {
-            clearTimeout(timeout);
-            timeout = setTimeout(async () => {
-                await this.updateConfig(hostname, { label: this.elements.label.input.value });
-            }, 500);
-        });
-
-        const { input } = this.elements.label;
+        const input = this.elements.label.input;
         input.value = config?.label ?? "";
 
         const debouncedUpdate = this.debounce(async (value: string) => {
             await this.updateConfig(hostname, { label: value });
         }, 400);
 
-        input.addEventListener("keyup", () => {
-            debouncedUpdate(input.value);
-        });
+        input.oninput = () => debouncedUpdate(input.value);
     }
 
     private debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
@@ -188,14 +174,14 @@ export class Popup {
 
     private setupColorPicker(hostname: string, config: Partial<DomainConfig>): void {
         this.elements.color.options.forEach(option => {
-            if (option.getAttribute("data-color") === config?.labelColor) {
+            const color = option.getAttribute("data-color");
+            if (color === config?.labelColor) {
                 this.setSelectedColor(option);
             }
 
             option.addEventListener("click", async () => {
                 this.setSelectedColor(option);
-                const color = option.getAttribute("data-color") ?? ConfigService.DEFAULT_CONFIG.labelColor;
-                await this.updateConfig(hostname, { labelColor: color });
+                await this.updateConfig(hostname, { labelColor: color || ConfigService.DEFAULT_CONFIG.labelColor });
             });
         });
     }
