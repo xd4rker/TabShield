@@ -42,10 +42,21 @@ export class Popup {
         }
     }
 
-    async init() {
+    async init(): Promise<void> {
         this.setVersion();
         this.setupCommonControls();
+        await this.applyConfig();
+    }
 
+    private setVersion(): void {
+        this.elements.version.textContent = 'v' + BrowserUtils.getExtensionVersion();
+    }
+
+    private setupCommonControls(): void {
+        this.elements.controls.options.addEventListener("click", () => this.openOptionsPage());
+    }
+
+    private async applyConfig(): Promise<void> {
         const url = await BrowserUtils.getCurrentTabUrl();
         if (!url) {
             console.error('Could not get current tab URL');
@@ -76,16 +87,12 @@ export class Popup {
         this.setupColorPicker(hostname, config);
     }
 
-    private setupCommonControls() {
-        this.elements.controls.options.addEventListener("click", () => this.openOptionsPage());
-    }
-
-    private openOptionsPage() {
+    private openOptionsPage(): void {
         BrowserUtils.openOptionsPage("/src/options/options.html");
         this.close();
     }
 
-    public async handleToggle(hostname: string, enable: boolean) {
+    public async handleToggle(hostname: string, enable: boolean): Promise<void> {
         if (enable) {
             await this.updateConfig(hostname, ConfigService.DEFAULT_CONFIG);
         } else {
@@ -96,10 +103,6 @@ export class Popup {
         await this.init();
         await BrowserUtils.reloadCurrentTab();
         if (!enable) this.close();
-    }
-
-    private setVersion(): void {
-        this.elements.version.textContent = 'v' + BrowserUtils.getExtensionVersion();
     }
 
     private async updateConfig(hostname: string, config: Partial<DomainConfig>): Promise<void> {
@@ -153,7 +156,7 @@ export class Popup {
         }
     }
 
-    private setupLabelInput(hostname: string, config: DomainConfig) {
+    private setupLabelInput(hostname: string, config: DomainConfig): void {
         let timeout: NodeJS.Timeout;
         this.elements.label.input.addEventListener("keyup", () => {
             clearTimeout(timeout);
@@ -183,7 +186,7 @@ export class Popup {
         };
     }
 
-    private setupColorPicker(hostname: string, config: Partial<DomainConfig>) {
+    private setupColorPicker(hostname: string, config: Partial<DomainConfig>): void {
         this.elements.color.options.forEach(option => {
             if (option.getAttribute("data-color") === config?.labelColor) {
                 this.setSelectedColor(option);
@@ -197,26 +200,26 @@ export class Popup {
         });
     }
 
-    private setSelectedColor(option: Element) {
+    private setSelectedColor(option: Element): void {
         this.elements.color.options.forEach(opt => opt.classList.remove("selected"));
         option.classList.add("selected");
     }
 
-    private toggleUI(enabled: boolean) {
+    private toggleUI(enabled: boolean): void {
         this.elements.containers.enabled.style.display = enabled ? "block" : "none";
         this.elements.containers.disabled.style.display = enabled ? "none" : "block";
     }
 
-    private toggleLabelVisibility(show: boolean) {
+    private toggleLabelVisibility(show: boolean): void {
         this.elements.color.picker.style.display = show ? "flex" : "none";
         this.elements.label.field.style.display = show ? "flex" : "none";
     }
 
-    private showSpecialPageContainer() {
+    private showSpecialPageContainer(): void {
         this.elements.containers.specialPage.style.display = "block";
     }
 
-    private close() {
+    private close(): void {
         window.close();
     }
 }
