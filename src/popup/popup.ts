@@ -20,23 +20,31 @@ export class Popup {
                 disable: DomUtils.getElement<HTMLElement>("disable-btn"),
                 options: DomUtils.getElement<HTMLElement>("options-btn"),
             },
-            displayLabelCheckbox: DomUtils.getElement<HTMLInputElement>("display-label-checkbox"),
-            enableConfirmCheckbox: DomUtils.getElement<HTMLInputElement>("enable-confirm-checkbox"),
-            disableInputsCheckbox: DomUtils.getElement<HTMLInputElement>("disable-inputs-checkbox"),
-            labelField: DomUtils.getElement<HTMLElement>("custom-label"),
-            labelInput: DomUtils.getElement<HTMLInputElement>("label-input"),
-            colorPicker: DomUtils.getElement<HTMLElement>("color-picker"),
-            enabledContainer: DomUtils.getElement<HTMLElement>("enabled-container"),
-            disabledContainer: DomUtils.getElement<HTMLElement>("disabled-container"),
-            specialPageContainer: DomUtils.getElement<HTMLElement>("special-page-container"),
-            versionElement: DomUtils.getElement<HTMLElement>("extension-version"),
-            colorOptions: document.querySelectorAll(".color-option")
+            checkboxes: {
+                displayLabel: DomUtils.getElement<HTMLInputElement>("display-label-checkbox"),
+                enableConfirm: DomUtils.getElement<HTMLInputElement>("enable-confirm-checkbox"),
+                disableInputs: DomUtils.getElement<HTMLInputElement>("disable-inputs-checkbox"),
+            },
+            label: {
+                field: DomUtils.getElement("custom-label"),
+                input: DomUtils.getElement<HTMLInputElement>("label-input"),
+            },
+            color: {
+                picker: DomUtils.getElement("color-picker"),
+                options: document.querySelectorAll(".color-option"),
+            },
+            containers: {
+                enabled: DomUtils.getElement("enabled-container"),
+                disabled: DomUtils.getElement("disabled-container"),
+                specialPage: DomUtils.getElement("special-page-container"),
+            },
+            version: DomUtils.getElement("extension-version"),
         }
     }
 
     async init() {
         this.setVersion();
-        this.initOptionsButton();
+        this.setupCommonControls();
 
         const url = await BrowserUtils.getCurrentTabUrl();
         if (!url) {
@@ -54,21 +62,10 @@ export class Popup {
 
         const config = await this.configService.getDomainConfig(hostname);
         this.toggleUI(Boolean(config));
-        this.setupEventListeners(hostname, config);
+        this.initializeDomainControls(hostname, config);
     }
 
-    private setVersion(): void {
-        this.elements.versionElement.textContent = 'v' + BrowserUtils.getExtensionVersion();
-    }
-
-    private initOptionsButton() {
-        this.elements.controls.options.addEventListener("click", () => {
-            BrowserUtils.openOptionsPage("/src/options/options.html");
-            this.close();
-        });
-    }
-
-    private setupEventListeners(hostname: string, config: DomainConfig | null) {
+    private initializeDomainControls(hostname: string, config: DomainConfig | null): void {
         this.elements.controls.enable.addEventListener("click", () => this.handleToggle(hostname, true));
         this.elements.controls.disable.addEventListener("click", () => this.handleToggle(hostname, false));
 
@@ -79,6 +76,32 @@ export class Popup {
         this.setupColorPicker(hostname, config);
     }
 
+    private setupCommonControls() {
+        this.elements.controls.options.addEventListener("click", () => this.openOptionsPage());
+    }
+
+    private openOptionsPage() {
+        BrowserUtils.openOptionsPage("/src/options/options.html");
+        this.close();
+    }
+
+    public async handleToggle(hostname: string, enable: boolean) {
+        if (enable) {
+            await this.updateConfig(hostname, ConfigService.DEFAULT_CONFIG);
+        } else {
+            await this.configService.removeDomainConfig(hostname);
+        }
+
+        this.toggleUI(enable);
+        await this.init();
+        await BrowserUtils.reloadCurrentTab();
+        if (!enable) this.close();
+    }
+
+    private setVersion(): void {
+        this.elements.version.textContent = 'v' + BrowserUtils.getExtensionVersion();
+    }
+
     private async updateConfig(hostname: string, config: Partial<DomainConfig>): Promise<void> {
         await this.configService.updateDomainConfig(hostname, config);
         await BrowserUtils.reloadCurrentTab();
@@ -86,7 +109,7 @@ export class Popup {
 
     private initializeCheckboxes(hostname: string, config: DomainConfig): void {
         this.initializeFeatureCheckbox(
-            this.elements.displayLabelCheckbox,
+            this.elements.checkboxes.displayLabel,
             hostname,
             "displayLabel",
             config.displayLabel,
@@ -94,14 +117,14 @@ export class Popup {
         );
 
         this.initializeFeatureCheckbox(
-            this.elements.enableConfirmCheckbox,
+            this.elements.checkboxes.enableConfirm,
             hostname,
             "confirmForms",
             config.confirmForms
         );
 
         this.initializeFeatureCheckbox(
-            this.elements.disableInputsCheckbox,
+            this.elements.checkboxes.disableInputs,
             hostname,
             "disableInputs",
             config.disableInputs
@@ -132,22 +155,22 @@ export class Popup {
 
     private setupLabelInput(hostname: string, config: DomainConfig) {
         let timeout: NodeJS.Timeout;
-        this.elements.labelInput.addEventListener("keyup", () => {
+        this.elements.label.input.addEventListener("keyup", () => {
             clearTimeout(timeout);
             timeout = setTimeout(async () => {
-                await this.updateConfig(hostname, { label: this.elements.labelInput.value });
+                await this.updateConfig(hostname, { label: this.elements.label.input.value });
             }, 500);
         });
 
-        const { labelInput } = this.elements;
-        labelInput.value = config?.label ?? "";
+        const { input } = this.elements.label;
+        input.value = config?.label ?? "";
 
         const debouncedUpdate = this.debounce(async (value: string) => {
             await this.updateConfig(hostname, { label: value });
         }, 400);
 
-        labelInput.addEventListener("keyup", () => {
-            debouncedUpdate(labelInput.value);
+        input.addEventListener("keyup", () => {
+            debouncedUpdate(input.value);
         });
     }
 
@@ -161,7 +184,7 @@ export class Popup {
     }
 
     private setupColorPicker(hostname: string, config: Partial<DomainConfig>) {
-        this.elements.colorOptions.forEach(option => {
+        this.elements.color.options.forEach(option => {
             if (option.getAttribute("data-color") === config?.labelColor) {
                 this.setSelectedColor(option);
             }
@@ -175,35 +198,22 @@ export class Popup {
     }
 
     private setSelectedColor(option: Element) {
-        this.elements.colorOptions.forEach(opt => opt.classList.remove("selected"));
+        this.elements.color.options.forEach(opt => opt.classList.remove("selected"));
         option.classList.add("selected");
     }
 
-    public async handleToggle(hostname: string, enable: boolean) {
-        if (enable) {
-            await this.updateConfig(hostname, ConfigService.DEFAULT_CONFIG);
-        } else {
-            await this.configService.removeDomainConfig(hostname);
-        }
-
-        this.toggleUI(enable);
-        await this.init();
-        await BrowserUtils.reloadCurrentTab();
-        if (!enable) this.close();
-    }
-
     private toggleUI(enabled: boolean) {
-        this.elements.enabledContainer.style.display = enabled ? "block" : "none";
-        this.elements.disabledContainer.style.display = enabled ? "none" : "block";
+        this.elements.containers.enabled.style.display = enabled ? "block" : "none";
+        this.elements.containers.disabled.style.display = enabled ? "none" : "block";
     }
 
     private toggleLabelVisibility(show: boolean) {
-        this.elements.colorPicker.style.display = show ? "flex" : "none";
-        this.elements.labelField.style.display = show ? "flex" : "none";
+        this.elements.color.picker.style.display = show ? "flex" : "none";
+        this.elements.label.field.style.display = show ? "flex" : "none";
     }
 
     private showSpecialPageContainer() {
-        this.elements.specialPageContainer.style.display = "block";
+        this.elements.containers.specialPage.style.display = "block";
     }
 
     private close() {
