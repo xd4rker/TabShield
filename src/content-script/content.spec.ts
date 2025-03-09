@@ -17,6 +17,11 @@ jest.mock("webextension-polyfill", () => ({
     },
 }));
 
+jest.spyOn(global, "requestAnimationFrame").mockImplementation((callback) => {
+    callback(0);
+    return 0;
+});
+
 function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }

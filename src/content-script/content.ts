@@ -16,9 +16,10 @@ export class ContentScript {
 
         if (config.displayLabel) this.displayLabel(config.labelColor, config.label);
         if (config.confirmForms) this.preventFormSubmission();
-        if (config.disableInputs) this.disableInteractiveElements();
-
-        this.observeDOMChanges(config);
+        if (config.disableInputs) {
+            this.disableInteractiveElements();
+            this.observeDOMChanges();
+        }
     }
 
     public cleanup(): void {
@@ -37,18 +38,21 @@ export class ContentScript {
 
                 const form = event.target as HTMLFormElement;
                 if (!form) return;
-
                 if (await this.createConfirmationDialog()) form.submit();
             },
-            true
+            { capture: true, passive: false }
         );
     }
 
-    private observeDOMChanges(config: any): void {
-        if (!config.disableInputs) return;
-
+    private observeDOMChanges(): void {
         this.mutationObserver = new MutationObserver(() => this.disableInteractiveElements());
-        this.mutationObserver.observe(document.body, { childList: true, subtree: true });
+
+        this.mutationObserver.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: false,
+            characterData: false
+        });
     }
 
     private displayLabel(color: string = "#dd2d23", text: string = ""): void {
@@ -161,7 +165,10 @@ export class ContentScript {
             dialog.appendChild(message);
             dialog.appendChild(buttonContainer);
             modal.appendChild(dialog);
-            document.body.appendChild(modal);
+
+            requestAnimationFrame(() => {
+                document.body.appendChild(modal);
+            });
         });
     }
 
