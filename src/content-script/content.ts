@@ -70,12 +70,14 @@ export class ContentScript {
     }
 
     private displayLabel(color: string = "#dd2d23", text: string = ""): void {
-        const labelText = text.trim() || "TabShield Enabled";
+        if (document.getElementById("tabshield-label")) return;
+
         const label = document.createElement("div");
+        label.id = "tabshield-label";
         label.innerHTML = `
       <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
         <img src="${browser.runtime.getURL("/icon/icon-white.png")}" width="20" height="20" style="flex-shrink: 0;">
-        <span>${labelText}</span>
+        <span>${text.trim() || "TabShield Enabled"}</span>
       </div>
     `;
 
@@ -96,12 +98,15 @@ export class ContentScript {
             fontFamily: "Consolas, monaco, monospace",
         });
 
-        document.body.appendChild(label);
+        requestAnimationFrame(() => {
+            document.body.appendChild(label);
+        });
     }
 
     private createConfirmationDialog(): Promise<boolean> {
         return new Promise((resolve) => {
             const modal = document.createElement("div");
+            const fragment = document.createDocumentFragment();
             this.applyStyles(modal, {
                 position: "fixed",
                 top: "0",
@@ -174,21 +179,20 @@ export class ContentScript {
                 resolve(false);
             };
 
-            buttonContainer.appendChild(confirmButton);
-            buttonContainer.appendChild(cancelButton);
-            dialog.appendChild(message);
-            dialog.appendChild(buttonContainer);
-            modal.appendChild(dialog);
+            buttonContainer.append(confirmButton, cancelButton);
+            dialog.append(message, buttonContainer);
+            modal.append(dialog);
+            fragment.appendChild(modal);
 
             requestAnimationFrame(() => {
-                document.body.appendChild(modal);
+                document.body.appendChild(fragment);
             });
         });
     }
 
     private disableInteractiveElements(): void {
         const interactiveElements = document.querySelectorAll<HTMLElement>(
-            "input, textarea, select, button, form, [onclick]"
+            "input:not([disabled]), textarea:not([disabled]), select:not([disabled]), button:not([disabled]), form, [onclick]"
         );
 
         interactiveElements.forEach(element => {
