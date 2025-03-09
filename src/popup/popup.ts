@@ -53,7 +53,7 @@ export class Popup {
     }
 
     private setupCommonControls(): void {
-        this.elements.controls.options.onclick = () => this.openOptionsPage();
+        this.elements.controls.options.addEventListener("click", () => this.openOptionsPage(), { once: true });
     }
 
     private async applyConfig(): Promise<void> {
@@ -77,8 +77,8 @@ export class Popup {
     }
 
     private setupDomainControls(hostname: string, config: DomainConfig | null): void {
-        this.elements.controls.enable.onclick = () => this.handleToggle(hostname, true);
-        this.elements.controls.disable.onclick = () => this.handleToggle(hostname, false);
+        this.elements.controls.enable.addEventListener("click", () => this.handleToggle(hostname, true), { once: true });
+        this.elements.controls.disable.addEventListener("click", () => this.handleToggle(hostname, false), { once: true });
 
         if (!config) return;
 
