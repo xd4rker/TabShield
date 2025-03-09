@@ -1,9 +1,9 @@
 {
   "{{chrome}}.manifest_version": 3,
   "{{firefox}}.manifest_version": 2,
-  "{{firefox}}.applications": {
+  "{{firefox}}.browser_specific_settings": {
     "gecko": {
-      "id": "X@Y"
+      "id": "xd4rker@gmail.com"
     }
   },
   "description": "An extension to minimize accidental changes on your most important websites.",
