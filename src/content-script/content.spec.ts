@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import { ConfigService } from "../common/configService";
-import { FakeStorage } from "../common/fakeStorage";
+import { FakeStorage } from "../common/storage/fakeStorage";
 import { ContentScript } from "./content";
 
 jest.mock("webextension-polyfill", () => ({
@@ -17,6 +17,11 @@ jest.mock("webextension-polyfill", () => ({
     },
 }));
 
+jest.spyOn(global, "requestAnimationFrame").mockImplementation((callback) => {
+    callback(0);
+    return 0;
+});
+
 function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -28,10 +33,7 @@ describe("ContentScript", () => {
     beforeEach(() => {
         document.body.innerHTML = "";
         configService = new ConfigService(new FakeStorage());
-        contentScript = new ContentScript();
-
-        // @ts-ignore (force replace private property for testing)
-        contentScript["configService"] = configService;
+        contentScript = new ContentScript(configService);
     });
 
     afterEach(() => {

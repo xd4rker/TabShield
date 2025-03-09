@@ -5,7 +5,3 @@ export interface DomainConfig {
     disableInputs: boolean,
     labelColor: string,
 }
-
-interface DomainConfigStore {
-    [domain: string]: DomainConfig;
-}

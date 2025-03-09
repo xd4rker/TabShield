@@ -1,5 +1,5 @@
 import { ConfigService } from "./configService";
-import { FakeStorage } from "./fakeStorage";
+import { FakeStorage } from "./storage/fakeStorage";
 import { DomainConfig } from "./types";
 
 describe("ConfigService", () => {

@@ -12,8 +12,12 @@
 
 <body>
   <header>
-    <div id="heading"><img src="/icon/128.png" width="20" height="20">&nbsp;TabShield &nbsp;<span
-        id="extension-version"></span></div>
+    <div id="heading">
+      <img src="/icon/128.png" width="20" height="20">&nbsp;TabShield &nbsp;<span id="extension-version"></span>
+      <button id="options-btn" title="Options">
+        <img src="/icon/settings.png" width="16" height="16" alt="Settings">
+      </button>
+    </div>
   </header>
 
   <div id="special-page-container">
@@ -31,7 +35,7 @@
     <div id="features" class="checkbox-container">
       <label class="checkbox-label">
         <input type="checkbox" name="feature" value="display-label" id="display-label-checkbox">
-        <span>Show Custom Label</span>
+        <span>Show custom label</span>
       </label>
 
       <div id="custom-label">
@@ -49,11 +53,11 @@
 
       <label class="checkbox-label">
         <input type="checkbox" name="feature" value="confirm-forms" id="enable-confirm-checkbox">
-        <span>Confirm Before Submitting Forms</span>
+        <span>Confirm before submitting forms</span>
       </label>
       <label class="checkbox-label">
         <input type="checkbox" name="feature" value="disable-inputs" id="disable-inputs-checkbox">
-        <span>Disable All Form Inputs</span>
+        <span>Disable all form inputs</span>
       </label>
     </div>
   </div>
