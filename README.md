@@ -1,35 +1,30 @@
 # <img src="public/icon/48.png" align="absmiddle"> TabShield
 
-TabShield is a browser extension that helps prevent accidental actions on important websites. Whether you're a developer working across different environments, a professional managing critical data, or a user who wants extra safeguards while browsing, TabShield will help you minimize mistakes and unintended changes.
+[<img src="https://user-images.githubusercontent.com/7257362/196050028-71dd50f6-19a8-4405-ab7e-a022eb5a4287.png">](https://chromewebstore.google.com/detail/tabshield/einfknhcpbipilnjckhfkgaekljghame) [<img src="https://user-images.githubusercontent.com/7257362/196050056-9afc4687-bc02-4b7f-ad4a-3b2e86e65507.png">](#)
 
-# Features
+**TabShield** is a cross-browser extension designed to help prevent accidental changes on your important websites.  
+Whether you're a developer working across different environments, a professional managing critical data, or a user who wants extra safeguards while browsing, TabShield will help you minimize mistakes and unintended actions.
 
-**Custom labels**: Display a clear, colored label on tabs to easily differentiate environments or important websites.
+## Features
 
-**Confirmation for forms**: Add a confirmation step before submitting forms.
+- **Custom Labels**: Display a clear, colored label on tabs to easily differentiate environments or important websites.
+- **Form Confirmation**: Add a confirmation step before submitting forms.
+- **Disable Form Inputs**: Block all input fields on selected websites to avoid unintended changes.
+- **Configuration Import/Export**: Save, share, and restore your TabShield settings effortlessly.
 
-**Disable form inputs**: Block all input fields on selected websites to avoid unintended changes.
+## Installation
 
-**Configuration Import/Export**: Save, share, and restore your TabShield settings effortlessly.
-
-# Installation
-
-## Chrome
-
-Download the latest release from the Chrome Web Store.
-
-## Firefox
-
-Download the latest release from the Firefox Add-ons.
+- **Chrome**: [Chrome Web Store](https://chromewebstore.google.com/detail/tabshield/einfknhcpbipilnjckhfkgaekljghame)
+- **Firefox**: [Firefox Add-ons](#)
 
 ## Build Locally
 
-Alternatively, you can build the extension locally using the following commands:
+To build TabShield locally, run:
 
 ```sh
-npm install # install dependencies
-npm run bundle:firefox # build for Firefox
-npm run bundle:chrome # build for Chrome
+npm install # Install dependencies
+npm run bundle:chrome # Build for Chrome
+npm run bundle:firefox # Build for Firefox
 ```
 
-These commands will generate the extension packages under `dist-archives`.
+This will build the extension packages under `dist-archives`.
