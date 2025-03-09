@@ -5,6 +5,9 @@ import { SyncStorage } from "../common/storage/synStorage";
 export class ContentScript {
     private readonly configService;
     private mutationObserver: MutationObserver | null = null;
+    private observerThrottleTimeout: number | null = null;
+
+    private static readonly THROTTLE_DELAY = 500;
 
     constructor(configService: ConfigService) {
         this.configService = configService;
@@ -45,7 +48,18 @@ export class ContentScript {
     }
 
     private observeDOMChanges(): void {
-        this.mutationObserver = new MutationObserver(() => this.disableInteractiveElements());
+        this.mutationObserver = new MutationObserver((mutations) => {
+            const hasRelevantChanges = mutations.some(mutation => mutation.addedNodes.length > 0);
+            if (!hasRelevantChanges) return;
+
+            // Throttle processing
+            if (this.observerThrottleTimeout === null) {
+                this.observerThrottleTimeout = window.setTimeout(() => {
+                    this.disableInteractiveElements();
+                    this.observerThrottleTimeout = null;
+                }, ContentScript.THROTTLE_DELAY);
+            }
+        });
 
         this.mutationObserver.observe(document.body, {
             childList: true,
@@ -173,25 +187,32 @@ export class ContentScript {
     }
 
     private disableInteractiveElements(): void {
-        const selectors = "input, textarea, select, button";
-        document.querySelectorAll<HTMLElement>(selectors).forEach((element) => {
+        const interactiveElements = document.querySelectorAll<HTMLElement>(
+            "input, textarea, select, button, form, [onclick]"
+        );
+
+        interactiveElements.forEach(element => {
+            const tagName = element.tagName.toLowerCase();
+
+            if (tagName === "form") {
+                element.addEventListener("submit", (event: Event) => event.preventDefault(), { passive: false });
+                return;
+            }
+
+            if (element.hasAttribute("onclick")) {
+                element.onclick = () => false;
+                this.applyStyles(element, {
+                    pointerEvents: "none",
+                    filter: "grayscale(100%) opacity(0.5)"
+                });
+                return;
+            }
+
             element.setAttribute("disabled", "true");
             this.applyStyles(element, {
                 filter: "grayscale(100%) opacity(0.5)",
-                cursor: "not-allowed",
+                cursor: "not-allowed"
             });
-        });
-
-        document.querySelectorAll<HTMLElement>("[onclick]").forEach((element) => {
-            element.onclick = () => false;
-            this.applyStyles(element, {
-                pointerEvents: "none",
-                filter: "grayscale(100%) opacity(0.5)",
-            });
-        });
-
-        document.querySelectorAll<HTMLFormElement>("form").forEach((form) => {
-            form.addEventListener("submit", (event: Event) => event.preventDefault());
         });
     }
 
