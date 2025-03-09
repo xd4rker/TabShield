@@ -74,12 +74,31 @@ export class ContentScript {
 
         const label = document.createElement("div");
         label.id = "tabshield-label";
-        label.innerHTML = `
-      <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-        <img src="${browser.runtime.getURL("/icon/icon-white.png")}" width="20" height="20" style="flex-shrink: 0;">
-        <span>${text.trim() || "TabShield Enabled"}</span>
-      </div>
-    `;
+
+        const container = document.createElement("div");
+
+        this.applyStyles(container, {
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "8px",
+        });
+
+        const img = document.createElement("img");
+        img.src = browser.runtime.getURL("/icon/icon-white.png");
+        img.width = 20;
+        img.height = 20;
+
+        this.applyStyles(img, {
+            flexShrink: "0",
+        });
+
+        const span = document.createElement("span");
+        span.textContent = text.trim() || "TabShield Enabled";
+
+        container.appendChild(img);
+        container.appendChild(span);
+        label.appendChild(container);
 
         this.applyStyles(label, {
             position: "fixed",
