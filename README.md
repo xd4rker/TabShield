@@ -26,3 +26,5 @@ npm install # Install dependencies
 npm run bundle:chrome # Build for Chrome
 npm run bundle:firefox # Build for Firefox
 ```
+
+This will build the extension packages under `dist-archives`.
