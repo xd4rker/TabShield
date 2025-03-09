@@ -3,7 +3,7 @@
   "{{firefox}}.manifest_version": 2,
   "{{firefox}}.browser_specific_settings": {
     "gecko": {
-      "id": "xd4rker@gmail.com"
+      "id": "xd4rker+tabshield@gmail.com"
     }
   },
   "description": "An extension to minimize accidental changes on your most important websites.",
