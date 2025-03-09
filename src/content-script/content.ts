@@ -11,19 +11,14 @@ export class ContentScript {
     }
 
     public async init(): Promise<void> {
-        const hostname = window.location.hostname;
-        const config = await this.configService.getDomainConfig(hostname);
+        const config = await this.configService.getDomainConfig(window.location.hostname);
         if (!config) return;
 
-        if (config.displayLabel) {
-            this.displayLabel(config.labelColor, config.label);
-        }
-        if (config.confirmForms) {
-            this.preventFormSubmission();
-        }
-        if (config.disableInputs) {
-            this.disableInputs();
-        }
+        if (config.displayLabel) this.displayLabel(config.labelColor, config.label);
+        if (config.confirmForms) this.preventFormSubmission();
+        if (config.disableInputs) this.disableInteractiveElements();
+
+        this.observeDOMChanges(config);
     }
 
     public cleanup(): void {
@@ -36,30 +31,23 @@ export class ContentScript {
     private preventFormSubmission(): void {
         document.addEventListener(
             "submit",
-            async (event: Event) => {
+            async (event) => {
                 event.preventDefault();
                 event.stopPropagation();
 
                 const form = event.target as HTMLFormElement;
-                if (form) {
-                    const shouldSubmit = await this.createConfirmationDialog();
-                    if (shouldSubmit) {
-                        form.submit();
-                    }
-                }
+                if (!form) return;
+
+                if (await this.createConfirmationDialog()) form.submit();
             },
             true
         );
     }
 
-    private disableInputs(): void {
-        this.disableInteractiveElements();
-        this.disableForms();
+    private observeDOMChanges(config: any): void {
+        if (!config.disableInputs) return;
 
-        this.mutationObserver = new MutationObserver(() => {
-            this.disableForms();
-            this.disableInteractiveElements();
-        });
+        this.mutationObserver = new MutationObserver(() => this.disableInteractiveElements());
         this.mutationObserver.observe(document.body, { childList: true, subtree: true });
     }
 
@@ -178,8 +166,8 @@ export class ContentScript {
     }
 
     private disableInteractiveElements(): void {
-        const interactiveSelectors = "input, textarea, select, button";
-        document.querySelectorAll<HTMLElement>(interactiveSelectors).forEach((element) => {
+        const selectors = "input, textarea, select, button";
+        document.querySelectorAll<HTMLElement>(selectors).forEach((element) => {
             element.setAttribute("disabled", "true");
             this.applyStyles(element, {
                 filter: "grayscale(100%) opacity(0.5)",
@@ -194,9 +182,7 @@ export class ContentScript {
                 filter: "grayscale(100%) opacity(0.5)",
             });
         });
-    }
 
-    private disableForms(): void {
         document.querySelectorAll<HTMLFormElement>("form").forEach((form) => {
             form.addEventListener("submit", (event: Event) => event.preventDefault());
         });
