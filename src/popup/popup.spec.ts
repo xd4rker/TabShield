@@ -11,6 +11,7 @@ function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+jest.spyOn(window, "close").mockImplementation(() => { });
 jest.mock("webextension-polyfill", () => ({
     tabs: {
         query: jest.fn(),
@@ -28,11 +29,12 @@ describe("Popup", () => {
     const htmlContent = fs.readFileSync(path.resolve(__dirname, "popup.html"), "utf8");
     const cssContent = fs.readFileSync(path.resolve(__dirname, "popup.css"), "utf8");
 
+    const style = document.createElement("style");
+    style.innerHTML = cssContent;
+
     beforeEach(() => {
         document.body.innerHTML = htmlContent;
 
-        const style = document.createElement("style");
-        style.innerHTML = cssContent;
         document.head.appendChild(style);
 
         configService = new ConfigService(new FakeStorage());
@@ -60,7 +62,7 @@ describe("Popup", () => {
         expect((document.getElementById("enable-confirm-checkbox") as HTMLInputElement).checked).toBe(true);
         expect((document.getElementById("disable-inputs-checkbox") as HTMLInputElement).checked).toBe(true);
 
-        await delay(200);
+        await delay(100);
         expect((document.getElementById("color-picker") as HTMLElement).style.display).toBe('flex');
         expect((document.getElementById("custom-label") as HTMLElement).style.display).toBe('flex');
 
@@ -80,7 +82,7 @@ describe("Popup", () => {
         const enableButton = document.getElementById('enable-btn');
         enableButton?.click();
 
-        await delay(200);
+        await delay(100);
         expect((document.getElementById("disabled-container") as HTMLElement).style.display).toBe('none');
         expect((document.getElementById("enabled-container") as HTMLElement).style.display).toBe('block');
         expect((document.getElementById("display-label-checkbox") as HTMLInputElement).checked).toBe(true);
@@ -135,7 +137,7 @@ describe("Popup", () => {
         const labelInput = document.getElementById("label-input") as HTMLInputElement;
         const label = 'New label';
         labelInput.value = label;
-        labelInput.dispatchEvent(new Event("keyup"));
+        labelInput.dispatchEvent(new Event("input"));
 
         jest.advanceTimersByTime(500);
 

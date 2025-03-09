@@ -5,24 +5,23 @@ import { SyncStorage } from "../common/storage/synStorage";
 export class ContentScript {
     private readonly configService;
     private mutationObserver: MutationObserver | null = null;
+    private observerThrottleTimeout: number | null = null;
+
+    private static readonly THROTTLE_DELAY = 500;
 
     constructor(configService: ConfigService) {
         this.configService = configService;
     }
 
     public async init(): Promise<void> {
-        const hostname = window.location.hostname;
-        const config = await this.configService.getDomainConfig(hostname);
+        const config = await this.configService.getDomainConfig(window.location.hostname);
         if (!config) return;
 
-        if (config.displayLabel) {
-            this.displayLabel(config.labelColor, config.label);
-        }
-        if (config.confirmForms) {
-            this.preventFormSubmission();
-        }
+        if (config.displayLabel) this.displayLabel(config.labelColor, config.label);
+        if (config.confirmForms) this.preventFormSubmission();
         if (config.disableInputs) {
-            this.disableInputs();
+            this.disableInteractiveElements();
+            this.observeDOMChanges();
         }
     }
 
@@ -36,40 +35,49 @@ export class ContentScript {
     private preventFormSubmission(): void {
         document.addEventListener(
             "submit",
-            async (event: Event) => {
+            async (event) => {
                 event.preventDefault();
                 event.stopPropagation();
 
                 const form = event.target as HTMLFormElement;
-                if (form) {
-                    const shouldSubmit = await this.createConfirmationDialog();
-                    if (shouldSubmit) {
-                        form.submit();
-                    }
-                }
+                if (!form) return;
+                if (await this.createConfirmationDialog()) form.submit();
             },
-            true
+            { capture: true, passive: false }
         );
     }
 
-    private disableInputs(): void {
-        this.disableInteractiveElements();
-        this.disableForms();
+    private observeDOMChanges(): void {
+        this.mutationObserver = new MutationObserver((mutations) => {
+            const hasRelevantChanges = mutations.some(mutation => mutation.addedNodes.length > 0);
+            if (!hasRelevantChanges) return;
 
-        this.mutationObserver = new MutationObserver(() => {
-            this.disableForms();
-            this.disableInteractiveElements();
+            // Throttle processing
+            if (this.observerThrottleTimeout === null) {
+                this.observerThrottleTimeout = window.setTimeout(() => {
+                    this.disableInteractiveElements();
+                    this.observerThrottleTimeout = null;
+                }, ContentScript.THROTTLE_DELAY);
+            }
         });
-        this.mutationObserver.observe(document.body, { childList: true, subtree: true });
+
+        this.mutationObserver.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: false,
+            characterData: false
+        });
     }
 
     private displayLabel(color: string = "#dd2d23", text: string = ""): void {
-        const labelText = text.trim() || "TabShield Enabled";
+        if (document.getElementById("tabshield-label")) return;
+
         const label = document.createElement("div");
+        label.id = "tabshield-label";
         label.innerHTML = `
       <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
         <img src="${browser.runtime.getURL("/icon/icon-white.png")}" width="20" height="20" style="flex-shrink: 0;">
-        <span>${labelText}</span>
+        <span>${text.trim() || "TabShield Enabled"}</span>
       </div>
     `;
 
@@ -90,12 +98,15 @@ export class ContentScript {
             fontFamily: "Consolas, monaco, monospace",
         });
 
-        document.body.appendChild(label);
+        requestAnimationFrame(() => {
+            document.body.appendChild(label);
+        });
     }
 
     private createConfirmationDialog(): Promise<boolean> {
         return new Promise((resolve) => {
             const modal = document.createElement("div");
+            const fragment = document.createDocumentFragment();
             this.applyStyles(modal, {
                 position: "fixed",
                 top: "0",
@@ -168,37 +179,44 @@ export class ContentScript {
                 resolve(false);
             };
 
-            buttonContainer.appendChild(confirmButton);
-            buttonContainer.appendChild(cancelButton);
-            dialog.appendChild(message);
-            dialog.appendChild(buttonContainer);
-            modal.appendChild(dialog);
-            document.body.appendChild(modal);
+            buttonContainer.append(confirmButton, cancelButton);
+            dialog.append(message, buttonContainer);
+            modal.append(dialog);
+            fragment.appendChild(modal);
+
+            requestAnimationFrame(() => {
+                document.body.appendChild(fragment);
+            });
         });
     }
 
     private disableInteractiveElements(): void {
-        const interactiveSelectors = "input, textarea, select, button";
-        document.querySelectorAll<HTMLElement>(interactiveSelectors).forEach((element) => {
+        const interactiveElements = document.querySelectorAll<HTMLElement>(
+            "input:not([disabled]), textarea:not([disabled]), select:not([disabled]), button:not([disabled]), form, [onclick]"
+        );
+
+        interactiveElements.forEach(element => {
+            const tagName = element.tagName.toLowerCase();
+
+            if (tagName === "form") {
+                element.addEventListener("submit", (event: Event) => event.preventDefault(), { passive: false });
+                return;
+            }
+
+            if (element.hasAttribute("onclick")) {
+                element.onclick = () => false;
+                this.applyStyles(element, {
+                    pointerEvents: "none",
+                    filter: "grayscale(100%) opacity(0.5)"
+                });
+                return;
+            }
+
             element.setAttribute("disabled", "true");
             this.applyStyles(element, {
                 filter: "grayscale(100%) opacity(0.5)",
-                cursor: "not-allowed",
+                cursor: "not-allowed"
             });
-        });
-
-        document.querySelectorAll<HTMLElement>("[onclick]").forEach((element) => {
-            element.onclick = () => false;
-            this.applyStyles(element, {
-                pointerEvents: "none",
-                filter: "grayscale(100%) opacity(0.5)",
-            });
-        });
-    }
-
-    private disableForms(): void {
-        document.querySelectorAll<HTMLFormElement>("form").forEach((form) => {
-            form.addEventListener("submit", (event: Event) => event.preventDefault());
         });
     }
 
@@ -210,5 +228,16 @@ export class ContentScript {
     }
 }
 
-const configService = new ConfigService(new SyncStorage());
-new ContentScript(configService).init();
+const init = async () => {
+    const configService = new ConfigService(new SyncStorage());
+    const contentScript = new ContentScript(configService);
+    await contentScript.init();
+
+    window.addEventListener('unload', () => contentScript.cleanup());
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}

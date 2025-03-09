@@ -11,9 +11,7 @@ interface ImportResult {
 
 export class Options {
     private readonly configService;
-
     private readonly elements = this.getElements();
-
     private domains: Record<string, DomainConfig> = {};
 
     static readonly FILE_MAX_SIZE = 1000000;
