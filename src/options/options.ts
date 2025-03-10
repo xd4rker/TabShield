@@ -49,15 +49,26 @@ export class Options {
     private async loadWebsites(): Promise<void> {
         this.domains = await this.configService.loadDomainsConfig();
         const sortedDomains = Object.keys(this.domains).sort();
-        this.elements.websitesList.innerHTML = sortedDomains.length ? "" : this.createEmptyMessage();
+
+        this.elements.websitesList.textContent = "";
+
+        if (sortedDomains.length === 0) {
+            this.elements.websitesList.appendChild(this.createEmptyMessageElement());
+            return;
+        }
 
         sortedDomains.forEach(domain => {
             this.createWebsiteElement(domain, this.domains[domain]);
         });
     }
 
-    private createEmptyMessage(): string {
-        return `<p style="text-align: center; color: #666;">No websites are currently enabled.</p>`;
+    private createEmptyMessageElement(): HTMLElement {
+        const message = document.createElement("div");
+        message.textContent = "No websites configured.";
+        message.style.textAlign = "center";
+        message.style.color = "#888";
+        message.style.padding = "10px";
+        return message;
     }
 
     private createWebsiteElement(domain: string, config: DomainConfig): void {

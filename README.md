@@ -1,6 +1,6 @@
 # <img src="public/icon/48.png" align="absmiddle"> TabShield
 
-[<img src="https://user-images.githubusercontent.com/7257362/196050028-71dd50f6-19a8-4405-ab7e-a022eb5a4287.png">](https://chromewebstore.google.com/detail/tabshield/einfknhcpbipilnjckhfkgaekljghame) [<img src="https://user-images.githubusercontent.com/7257362/196050056-9afc4687-bc02-4b7f-ad4a-3b2e86e65507.png">](#)
+[<img src="https://user-images.githubusercontent.com/7257362/196050028-71dd50f6-19a8-4405-ab7e-a022eb5a4287.png">](https://chromewebstore.google.com/detail/tabshield/einfknhcpbipilnjckhfkgaekljghame) [<img src="https://user-images.githubusercontent.com/7257362/196050056-9afc4687-bc02-4b7f-ad4a-3b2e86e65507.png">](https://addons.mozilla.org/en-US/firefox/addon/tabshield/)
 
 **TabShield** is a cross-browser extension designed to help prevent accidental changes on your important websites.  
 Whether you're a developer working across different environments, a professional managing critical data, or a user who wants extra safeguards while browsing, TabShield will help you minimize mistakes and unintended actions.
@@ -15,7 +15,7 @@ Whether you're a developer working across different environments, a professional
 ## Installation
 
 - **Chrome**: [Chrome Web Store](https://chromewebstore.google.com/detail/tabshield/einfknhcpbipilnjckhfkgaekljghame)
-- **Firefox**: [Firefox Add-ons](#)
+- **Firefox**: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/tabshield/)
 
 ## Build Locally
 
