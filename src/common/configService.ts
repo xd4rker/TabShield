@@ -1,55 +1,70 @@
-import { StorageInterface } from "./storage/storageInterface";
-import { DomainConfig } from "./types";
+import { StorageInterface } from './storage/storageInterface';
+import { DomainConfig } from './types';
 
 export class ConfigService {
-    private static readonly CONFIG_KEY_DOMAINS = "domains";
+  private static readonly CONFIG_KEY_DOMAINS = 'domains';
 
-    public static readonly DEFAULT_CONFIG: Readonly<DomainConfig> = Object.freeze({
-        displayLabel: true,
-        confirmForms: false,
-        disableInputs: false,
-        labelColor: '#dd2d23',
-    });
-
-    constructor(private readonly storage: StorageInterface) { }
-
-    /**
-     * Updates configuration for a specific domain
-     */
-    async updateDomainConfig(domain: string, value: Partial<DomainConfig>): Promise<void> {
-        const domains = await this.loadDomainsConfig();
-        domains[domain] = { ...ConfigService.DEFAULT_CONFIG, ...domains[domain], ...value };
-        await this.saveDomainsConfig(domains);
+  public static readonly DEFAULT_CONFIG: Readonly<DomainConfig> = Object.freeze(
+    {
+      displayLabel: true,
+      confirmForms: false,
+      disableInputs: false,
+      labelColor: '#dd2d23'
     }
+  );
 
-    /**
-     * Retrieves configuration for a specific domain
-     */
-    async getDomainConfig(domain: string): Promise<DomainConfig | null> {
-        const domains = await this.loadDomainsConfig();
-        return domains[domain] || null;
-    }
+  constructor(private readonly storage: StorageInterface) {}
 
-    /**
-     * Removes configuration for a specific domain
-     */
-    async removeDomainConfig(domain: string): Promise<void> {
-        const domains = await this.loadDomainsConfig();
-        delete domains[domain];
-        await this.saveDomainsConfig(domains);
-    }
+  /**
+   * Updates configuration for a specific domain
+   */
+  async updateDomainConfig(
+    domain: string,
+    value: Partial<DomainConfig>
+  ): Promise<void> {
+    const domains = await this.loadDomainsConfig();
+    domains[domain] = {
+      ...ConfigService.DEFAULT_CONFIG,
+      ...domains[domain],
+      ...value
+    };
+    await this.saveDomainsConfig(domains);
+  }
 
-    /**
-     * Saves all domain configurations
-     */
-    public async saveDomainsConfig(domains: Record<string, DomainConfig>): Promise<void> {
-        await this.storage.set(ConfigService.CONFIG_KEY_DOMAINS, domains);
-    }
+  /**
+   * Retrieves configuration for a specific domain
+   */
+  async getDomainConfig(domain: string): Promise<DomainConfig | null> {
+    const domains = await this.loadDomainsConfig();
+    return domains[domain] || null;
+  }
 
-    /**
-     * Loads all domain configurations
-     */
-    public async loadDomainsConfig(): Promise<Record<string, DomainConfig>> {
-        return (await this.storage.get<Record<string, DomainConfig>>(ConfigService.CONFIG_KEY_DOMAINS)) || {};
-    }
+  /**
+   * Removes configuration for a specific domain
+   */
+  async removeDomainConfig(domain: string): Promise<void> {
+    const domains = await this.loadDomainsConfig();
+    delete domains[domain];
+    await this.saveDomainsConfig(domains);
+  }
+
+  /**
+   * Saves all domain configurations
+   */
+  public async saveDomainsConfig(
+    domains: Record<string, DomainConfig>
+  ): Promise<void> {
+    await this.storage.set(ConfigService.CONFIG_KEY_DOMAINS, domains);
+  }
+
+  /**
+   * Loads all domain configurations
+   */
+  public async loadDomainsConfig(): Promise<Record<string, DomainConfig>> {
+    return (
+      (await this.storage.get<Record<string, DomainConfig>>(
+        ConfigService.CONFIG_KEY_DOMAINS
+      )) || {}
+    );
+  }
 }

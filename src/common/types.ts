@@ -1,7 +1,7 @@
 export interface DomainConfig {
-    displayLabel: boolean,
-    label?: string,
-    confirmForms: boolean,
-    disableInputs: boolean,
-    labelColor: string,
+  displayLabel: boolean;
+  label?: string;
+  confirmForms: boolean;
+  disableInputs: boolean;
+  labelColor: string;
 }
