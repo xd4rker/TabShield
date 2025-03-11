@@ -5,6 +5,10 @@
 **TabShield** is a cross-browser extension designed to help prevent accidental changes on your important websites.  
 Whether you're a developer working across different environments, a professional managing critical data, or a user who wants extra safeguards while browsing, TabShield will help you minimize mistakes and unintended actions.
 
+> ![A coder’s worst feeling ever](https://github.com/user-attachments/assets/26584936-2122-45f4-8b86-02b2a38c7d46)
+>
+> _A coder's worst feeling ever. By [CommitStrip](https://www.commitstrip.com/en/2013/10/09/la-pire-sensation-du-codeur/)._
+
 ## Features
 
 - **Custom Labels**: Display a clear, colored label on tabs to easily differentiate environments or important websites.
