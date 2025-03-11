@@ -109,7 +109,7 @@ export class Popup {
   }
 
   private openOptionsPage(): void {
-    BrowserUtils.openOptionsPage('/src/options/options.html');
+    BrowserUtils.openUrl('/src/options/options.html');
     this.close();
   }
 

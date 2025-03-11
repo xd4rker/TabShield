@@ -31,8 +31,7 @@ export class BrowserUtils {
   /**
    * Opens a new tab with the specified URL
    */
-  static openOptionsPage(url: string): void {
-    // rename to openPage
+  static openUrl(url: string): void {
     browser.tabs.create({ url });
   }
 }

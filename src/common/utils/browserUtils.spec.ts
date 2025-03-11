@@ -49,7 +49,7 @@ describe('BrowserUtils', () => {
   });
 
   test('should open a new tab with the given URL', () => {
-    BrowserUtils.openOptionsPage('https://example.com');
+    BrowserUtils.openUrl('https://example.com');
     expect(browser.tabs.create).toHaveBeenCalledWith({
       url: 'https://example.com'
     });
