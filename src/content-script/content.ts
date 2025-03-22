@@ -288,8 +288,6 @@ const init = async () => {
   const configService = new ConfigService(new SyncStorage());
   const contentScript = new ContentScript(configService);
   await contentScript.init();
-
-  window.addEventListener('unload', () => contentScript.cleanup());
 };
 
 if (document.readyState === 'loading') {
