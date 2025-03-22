@@ -1,5 +1,5 @@
 /**
- * Enum representing the label colors.
+ * Label colors.
  */
 export enum LabelColor {
   RED = '#dd2d23',
@@ -11,7 +11,7 @@ export enum LabelColor {
 }
 
 /**
- * Enum representing the possible positions for the label.
+ * Label positions.
  */
 export enum LabelPosition {
   UP_LEFT = 'up-left',
@@ -24,32 +24,32 @@ export enum LabelPosition {
 
 export interface DomainConfig {
   /**
-   * Whether to display the label on the page.
+   * Display a label on the page.
    */
   displayLabel: boolean;
 
   /**
-   * The text of the custom label (optional).
+   * The text of the custom label.
    */
   label?: string;
 
   /**
-   * The color of the label. Defaults to `#dd2d23`.
+   * The color of the label.
    */
   labelColor: string;
 
   /**
-   * The position of the label. Defaults to `BOTTOM_MIDDLE`.
+   * The position of the label.
    */
   labelPosition: LabelPosition;
 
   /**
-   * Whether to confirm before submitting forms.
+   * Confirm form submissions.
    */
   confirmForms: boolean;
 
   /**
-   * Whether to disable all form inputs.
+   * Disable all form inputs.
    */
   disableInputs: boolean;
 }
