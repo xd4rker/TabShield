@@ -2,6 +2,7 @@
 
 import { ConfigService } from '../common/configService';
 import { FakeStorage } from '../common/storage/fakeStorage';
+import { LabelColor } from '../common/types';
 import { ContentScript } from './content';
 
 jest.mock('webextension-polyfill', () => ({
@@ -53,7 +54,7 @@ describe('ContentScript', () => {
         displayLabel: true,
         confirmForms: false,
         disableInputs: false,
-        labelColor: '#198d41'
+        labelColor: LabelColor.RED
       };
       await configService.updateDomainConfig('localhost', config);
       await contentScript.init();
@@ -68,7 +69,7 @@ describe('ContentScript', () => {
         displayLabel: true,
         confirmForms: false,
         disableInputs: false,
-        labelColor: '#198d41',
+        labelColor: LabelColor.RED,
         label: 'Custom Label'
       };
       await configService.updateDomainConfig('localhost', config);

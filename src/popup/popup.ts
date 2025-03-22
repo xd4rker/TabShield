@@ -1,5 +1,5 @@
 import { ConfigService } from '../common/configService';
-import { DomainConfig } from '../common/types';
+import { DomainConfig, LabelPosition } from '../common/types';
 import { UrlUtils } from '../common/utils/urlUtils';
 import { DomUtils } from '../common/utils/domUtils';
 import { BrowserUtils } from '../common/utils/browserUtils';
@@ -38,6 +38,10 @@ export class Popup {
       color: {
         picker: DomUtils.getElement('color-picker'),
         options: document.querySelectorAll('.color-option')
+      },
+      position: {
+        container: DomUtils.getElement('label-position-container'),
+        options: document.querySelectorAll('.position-option')
       },
       containers: {
         enabled: DomUtils.getElement('enabled-container'),
@@ -106,6 +110,7 @@ export class Popup {
     this.setupCheckboxes(hostname, config);
     this.setupLabelInput(hostname, config);
     this.setupColorPicker(hostname, config);
+    this.setupPositionPicker(hostname, config);
   }
 
   private openOptionsPage(): void {
@@ -225,6 +230,32 @@ export class Popup {
     option.classList.add('selected');
   }
 
+  private setupPositionPicker(
+    hostname: string,
+    config: Partial<DomainConfig>
+  ): void {
+    this.elements.position.options.forEach((option) => {
+      const position = option.getAttribute('data-position') as LabelPosition;
+      if (position === config?.labelPosition) {
+        this.setSelectedPosition(option);
+      }
+
+      option.addEventListener('click', async () => {
+        this.setSelectedPosition(option);
+        await this.updateConfig(hostname, {
+          labelPosition: position || ConfigService.DEFAULT_CONFIG.labelPosition
+        });
+      });
+    });
+  }
+
+  private setSelectedPosition(option: Element): void {
+    this.elements.position.options.forEach((opt) =>
+      opt.classList.remove('selected')
+    );
+    option.classList.add('selected');
+  }
+
   private toggleUI(enabled: boolean): void {
     this.elements.containers.enabled.style.display = enabled ? 'block' : 'none';
     this.elements.containers.disabled.style.display = enabled
@@ -233,6 +264,7 @@ export class Popup {
   }
 
   private toggleLabelVisibility(show: boolean): void {
+    this.elements.position.container.style.display = show ? 'block' : 'none';
     this.elements.color.picker.style.display = show ? 'flex' : 'none';
     this.elements.label.field.style.display = show ? 'flex' : 'none';
   }

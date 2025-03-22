@@ -213,3 +213,44 @@ p {
     z-index: 100;
     pointer-events: none;
 }
+
+#label-position-options {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: #fafafa;
+  }
+  
+  .position-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s, border 0.2s, transform 0.1s;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 3px;
+    background-color: transparent;
+  }
+  
+  .position-option img {
+    width: 25px;
+  }
+  
+  .position-option:hover {
+    background-color: #f0f0f0;
+    border-color: #bbb;
+  }
+  
+  .position-option.selected {
+    border-color: #333;
+    background-color: #f0f0f0;
+  }
+  
+  .position-option:active {
+    transform: scale(0.95);
+  }

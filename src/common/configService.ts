@@ -1,5 +1,5 @@
 import { StorageInterface } from './storage/storageInterface';
-import { DomainConfig } from './types';
+import { DomainConfig, LabelColor, LabelPosition } from './types';
 
 export class ConfigService {
   private static readonly CONFIG_KEY_DOMAINS = 'domains';
@@ -7,9 +7,10 @@ export class ConfigService {
   public static readonly DEFAULT_CONFIG: Readonly<DomainConfig> = Object.freeze(
     {
       displayLabel: true,
+      labelColor: LabelColor.RED,
+      labelPosition: LabelPosition.BOTTOM_MIDDLE,
       confirmForms: false,
-      disableInputs: false,
-      labelColor: '#dd2d23'
+      disableInputs: false
     }
   );
 

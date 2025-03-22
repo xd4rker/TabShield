@@ -1,5 +1,5 @@
 import { ConfigService } from '../common/configService';
-import { DomainConfig } from '../common/types';
+import { DomainConfig, LabelPosition } from '../common/types';
 import { DomUtils } from '../common/utils/domUtils';
 import { BrowserUtils } from '../common/utils/browserUtils';
 import { SyncStorage } from '../common/storage/synStorage';
@@ -84,6 +84,7 @@ export class Options {
     this.setupCheckboxes(container, domain, config);
     this.setupLabelInput(container, domain, config);
     this.setupColorPicker(container, domain, config);
+    this.setupPositionPicker(container, domain, config);
 
     this.elements.websitesList.appendChild(container);
   }
@@ -181,9 +182,13 @@ export class Options {
   }
 
   private toggleLabelVisibility(container: HTMLElement, show: boolean): void {
+    const positionPicker = container.querySelector(
+      '#label-position-container'
+    ) as HTMLElement;
     const colorPicker = container.querySelector('.color-picker') as HTMLElement;
     const labelField = container.querySelector('.custom-label') as HTMLElement;
 
+    positionPicker.style.display = show ? 'block' : 'none';
     colorPicker.style.display = show ? 'flex' : 'none';
     labelField.style.display = show ? 'flex' : 'none';
   }
@@ -250,6 +255,42 @@ export class Options {
       '.color-option'
     ) as NodeListOf<HTMLElement>;
     colorOptions.forEach((opt) => opt.classList.remove('selected'));
+    option.classList.add('selected');
+  }
+
+  private setupPositionPicker(
+    container: HTMLElement,
+    domain: string,
+    config: DomainConfig
+  ): void {
+    const positionOptions = container.querySelectorAll(
+      '.position-option'
+    ) as NodeListOf<HTMLElement>;
+
+    positionOptions.forEach((option) => {
+      const position = option.getAttribute('data-position') as LabelPosition;
+      if (position === config?.labelPosition) {
+        this.setSelectedPosition(container, option);
+      }
+
+      option.addEventListener('click', async () => {
+        this.setSelectedPosition(container, option);
+        await this.configService.updateDomainConfig(domain, {
+          labelPosition: position || ConfigService.DEFAULT_CONFIG.labelPosition
+        });
+      });
+    });
+  }
+
+  private setSelectedPosition(
+    container: HTMLElement,
+    option: HTMLElement
+  ): void {
+    const positionOptions = container.querySelectorAll(
+      '.position-option'
+    ) as NodeListOf<HTMLElement>;
+
+    positionOptions.forEach((opt) => opt.classList.remove('selected'));
     option.classList.add('selected');
   }
 
