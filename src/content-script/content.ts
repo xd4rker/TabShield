@@ -1,6 +1,7 @@
 import browser from 'webextension-polyfill';
 import { ConfigService } from '../common/configService';
 import { SyncStorage } from '../common/storage/synStorage';
+import { LabelColor, LabelPosition } from '../common/types';
 
 export class ContentScript {
   private readonly configService;
@@ -19,7 +20,10 @@ export class ContentScript {
     );
     if (!config) return;
 
-    if (config.displayLabel) this.displayLabel(config.labelColor, config.label);
+    if (config.displayLabel) {
+      this.displayLabel(config.labelColor, config.label, config.labelPosition);
+    }
+
     if (config.confirmForms) this.preventFormSubmission();
     if (config.disableInputs) {
       this.disableInteractiveElements();
@@ -73,7 +77,32 @@ export class ContentScript {
     });
   }
 
-  private displayLabel(color: string = '#dd2d23', text: string = ''): void {
+  private getPositionStyles(position: LabelPosition) {
+    switch (position) {
+      case LabelPosition.UP_LEFT:
+        return { top: '10px', left: '10px', transform: 'none' };
+      case LabelPosition.UP_MIDDLE:
+        return { top: '10px', left: '50%', transform: 'translateX(-50%)' };
+      case LabelPosition.UP_RIGHT:
+        return { top: '10px', right: '10px', transform: 'none' };
+      case LabelPosition.BOTTOM_LEFT:
+        return { bottom: '10px', left: '10px', transform: 'none' };
+      case LabelPosition.BOTTOM_MIDDLE:
+        return {
+          bottom: '10px',
+          left: '50%',
+          transform: 'translateX(-50%)'
+        };
+      case LabelPosition.BOTTOM_RIGHT:
+        return { bottom: '10px', right: '10px', transform: 'none' };
+    }
+  }
+
+  private displayLabel(
+    color: string = LabelColor.RED,
+    text: string = '',
+    position: LabelPosition = LabelPosition.BOTTOM_MIDDLE
+  ): void {
     if (document.getElementById('tabshield-label')) return;
 
     const label = document.createElement('div');
@@ -104,11 +133,10 @@ export class ContentScript {
     container.appendChild(span);
     label.appendChild(container);
 
+    const positionStyles = this.getPositionStyles(position);
+
     this.applyStyles(label, {
       position: 'fixed',
-      bottom: '10px',
-      left: '50%',
-      transform: 'translateX(-50%)',
       backgroundColor: color,
       color: 'white',
       padding: '10px 20px',
@@ -118,7 +146,8 @@ export class ContentScript {
       fontWeight: 'bold',
       zIndex: '999999',
       textAlign: 'center',
-      fontFamily: 'Consolas, monaco, monospace'
+      fontFamily: 'Consolas, monaco, monospace',
+      ...positionStyles
     });
 
     requestAnimationFrame(() => {

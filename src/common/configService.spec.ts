@@ -1,6 +1,6 @@
 import { ConfigService } from './configService';
 import { FakeStorage } from './storage/fakeStorage';
-import { DomainConfig } from './types';
+import { DomainConfig, LabelColor, LabelPosition } from './types';
 
 describe('ConfigService', () => {
   let configService: ConfigService;
@@ -21,7 +21,8 @@ describe('ConfigService', () => {
       displayLabel: true,
       confirmForms: true,
       disableInputs: false,
-      labelColor: '#123456'
+      labelColor: LabelColor.RED,
+      labelPosition: LabelPosition.BOTTOM_MIDDLE
     };
     await storage.set('domains', { 'example.com': expectedConfig });
 
@@ -34,7 +35,8 @@ describe('ConfigService', () => {
       displayLabel: false,
       confirmForms: true,
       disableInputs: true,
-      labelColor: '#654321'
+      labelColor: LabelColor.RED,
+      labelPosition: LabelPosition.BOTTOM_MIDDLE
     };
 
     const config = await configService.getDomainConfig('example.com');
@@ -50,7 +52,8 @@ describe('ConfigService', () => {
       displayLabel: true,
       confirmForms: false,
       disableInputs: false,
-      labelColor: '#123456'
+      labelColor: LabelColor.RED,
+      labelPosition: LabelPosition.BOTTOM_MIDDLE
     };
     await configService.updateDomainConfig('example.com', domainConfig);
 
@@ -69,7 +72,8 @@ describe('ConfigService', () => {
       displayLabel: true,
       confirmForms: false,
       disableInputs: false,
-      labelColor: '#123456'
+      labelColor: LabelColor.RED,
+      labelPosition: LabelPosition.BOTTOM_MIDDLE
     };
     await configService.updateDomainConfig('example.com', domainConfig);
     await configService.removeDomainConfig('example.com');
@@ -89,7 +93,8 @@ describe('ConfigService', () => {
         displayLabel: false,
         confirmForms: false,
         disableInputs: true,
-        labelColor: '#ffffff'
+        labelColor: LabelColor.RED,
+        labelPosition: LabelPosition.BOTTOM_MIDDLE
       }
     };
 

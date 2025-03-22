@@ -6,6 +6,7 @@ import browser from 'webextension-polyfill';
 import { Popup } from './popup';
 import { ConfigService } from '../common/configService';
 import { FakeStorage } from '../common/storage/fakeStorage';
+import { LabelColor } from '../common/types';
 
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -57,7 +58,7 @@ describe('Popup', () => {
       displayLabel: true,
       confirmForms: true,
       disableInputs: true,
-      labelColor: '#198d41'
+      labelColor: LabelColor.RED
     };
     await configService.updateDomainConfig('example.com', config);
     await popup.init();
