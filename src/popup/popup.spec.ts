@@ -6,6 +6,7 @@ import browser from 'webextension-polyfill';
 import { Popup } from './popup';
 import { ConfigService } from '../common/configService';
 import { FakeStorage } from '../common/storage/fakeStorage';
+import { LabelColor } from '../common/types';
 
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -57,7 +58,7 @@ describe('Popup', () => {
       displayLabel: true,
       confirmForms: true,
       disableInputs: true,
-      labelColor: '#198d41'
+      labelColor: LabelColor.RED
     };
     await configService.updateDomainConfig('example.com', config);
     await popup.init();
@@ -157,7 +158,7 @@ describe('Popup', () => {
     ).toBe('none');
   });
 
-  test('Should toggle color picker and label input visibility', async () => {
+  test('Should toggle color/position picker and label input visibility', async () => {
     const mockUrl = 'https://example.com';
     (browser.tabs.query as jest.Mock).mockResolvedValue([{ url: mockUrl }]);
 
@@ -167,18 +168,23 @@ describe('Popup', () => {
     const displayLabelCheckbox = document.getElementById(
       'display-label-checkbox'
     ) as HTMLInputElement;
+    const positionPicker = document.getElementById(
+      'label-position-container'
+    ) as HTMLElement;
     const colorPicker = document.getElementById('color-picker') as HTMLElement;
     const labelField = document.getElementById('custom-label') as HTMLElement;
 
     enableButton?.click();
     await delay(100);
 
+    expect(positionPicker.style.display).toBe('block');
     expect(colorPicker.style.display).toBe('flex');
     expect(labelField.style.display).toBe('flex');
 
     displayLabelCheckbox.click();
     await delay(100);
 
+    expect(positionPicker.style.display).toBe('none');
     expect(colorPicker.style.display).toBe('none');
     expect(labelField.style.display).toBe('none');
   });
