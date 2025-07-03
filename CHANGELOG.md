@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.1](https://github.com/xd4rker/TabShield/compare/v1.1.0...v1.1.1) (2025-07-03)
+
+
+### Bug Fixes
+
+* fix tooltip text on popup & options page ([#23](https://github.com/xd4rker/TabShield/issues/23)) ([e21c9c0](https://github.com/xd4rker/TabShield/commit/e21c9c0b8796e066b60a5e5adb1099d8bf5e50cc))
+
 ## [1.1.0](https://github.com/xd4rker/TabShield/compare/v1.0.2...v1.1.0) (2025-03-22)
 
 
